@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RaptorAudio", "RaptorAudio\RaptorAudio.vcxproj", "{99CB86AB-5ACC-4CEF-92C6-E3EDC86A8A83}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug LIB v100|Win32 = Debug LIB v100|Win32
+		Debug LIB v110|Win32 = Debug LIB v110|Win32
+		Debug|Win32 = Debug|Win32
+		Release LIB v100|Win32 = Release LIB v100|Win32
+		Release LIB v110|Win32 = Release LIB v110|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{99CB86AB-5ACC-4CEF-92C6-E3EDC86A8A83}.Debug LIB v100|Win32.ActiveCfg = Debug LIB|Win32
+		{99CB86AB-5ACC-4CEF-92C6-E3EDC86A8A83}.Debug LIB v100|Win32.Build.0 = Debug LIB|Win32
+		{99CB86AB-5ACC-4CEF-92C6-E3EDC86A8A83}.Debug LIB v110|Win32.ActiveCfg = Debug LIB v110|Win32
+		{99CB86AB-5ACC-4CEF-92C6-E3EDC86A8A83}.Debug LIB v110|Win32.Build.0 = Debug LIB v110|Win32
+		{99CB86AB-5ACC-4CEF-92C6-E3EDC86A8A83}.Debug|Win32.ActiveCfg = Debug|Win32
+		{99CB86AB-5ACC-4CEF-92C6-E3EDC86A8A83}.Debug|Win32.Build.0 = Debug|Win32
+		{99CB86AB-5ACC-4CEF-92C6-E3EDC86A8A83}.Release LIB v100|Win32.ActiveCfg = Release LIB|Win32
+		{99CB86AB-5ACC-4CEF-92C6-E3EDC86A8A83}.Release LIB v100|Win32.Build.0 = Release LIB|Win32
+		{99CB86AB-5ACC-4CEF-92C6-E3EDC86A8A83}.Release LIB v110|Win32.ActiveCfg = Release LIB v110|Win32
+		{99CB86AB-5ACC-4CEF-92C6-E3EDC86A8A83}.Release LIB v110|Win32.Build.0 = Release LIB v110|Win32
+		{99CB86AB-5ACC-4CEF-92C6-E3EDC86A8A83}.Release|Win32.ActiveCfg = Release|Win32
+		{99CB86AB-5ACC-4CEF-92C6-E3EDC86A8A83}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

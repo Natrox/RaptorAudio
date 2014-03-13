@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\MemorySoundObject">
+      <UniqueIdentifier>{04fe4813-25ef-4bec-8f5a-dc6e7318a9de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\StreamingSoundObject">
+      <UniqueIdentifier>{fc58a1de-40bc-422b-a7c3-2fb21f9f6ad1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MemorySoundObject">
+      <UniqueIdentifier>{4b7403f7-94f7-4b1a-ba9c-e03e076e7337}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\StreamingSoundObject">
+      <UniqueIdentifier>{3067d442-e9d3-4b61-ab0b-054aa238c404}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\DSP">
+      <UniqueIdentifier>{28f1349f-2c08-4467-a903-63cd88b4ecc7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DSP">
+      <UniqueIdentifier>{ac09d6a8-fd5d-4d51-88f6-7697a770b34d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Utility">
+      <UniqueIdentifier>{583b09af-a9f7-49c3-ab0a-647b723b4a67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utility">
+      <UniqueIdentifier>{1b343109-8dd2-4927-8f1a-aaf3280b75b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\OGG">
+      <UniqueIdentifier>{2e72bddd-d4a2-4034-9fff-369e1881822e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\OGG">
+      <UniqueIdentifier>{d7c39e7e-2132-4bdf-8354-ec2bd895a436}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="./inc/WaveoutDevice.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="./inc/WaveFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="./inc/SoundObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="./inc/MemorySoundObject.h">
+      <Filter>Header Files\MemorySoundObject</Filter>
+    </ClInclude>
+    <ClInclude Include="./inc/MemorySoundObjectImpl.h">
+      <Filter>Header Files\MemorySoundObject</Filter>
+    </ClInclude>
+    <ClInclude Include="./inc/MemorySoundObjectWavImpl.h">
+      <Filter>Header Files\MemorySoundObject</Filter>
+    </ClInclude>
+    <ClInclude Include="./inc/StreamingSoundObject.h">
+      <Filter>Header Files\StreamingSoundObject</Filter>
+    </ClInclude>
+    <ClInclude Include="./inc/StreamingSoundObjectImpl.h">
+      <Filter>Header Files\StreamingSoundObject</Filter>
+    </ClInclude>
+    <ClInclude Include="./inc/StreamingSoundObjectWavImpl.h">
+      <Filter>Header Files\StreamingSoundObject</Filter>
+    </ClInclude>
+    <ClInclude Include="./inc/SoundObjectProperties.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="./inc/SoundMixer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="./inc/BlockBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="./inc/RingBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="./inc/HistoryBufferObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="./inc/RaptorAudio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="./inc/DSPChain.h">
+      <Filter>Header Files\DSP</Filter>
+    </ClInclude>
+    <ClInclude Include="./inc/DSPFunctions.h">
+      <Filter>Header Files\DSP</Filter>
+    </ClInclude>
+    <ClInclude Include="./inc/DSPVariables.h">
+      <Filter>Header Files\DSP</Filter>
+    </ClInclude>
+    <ClInclude Include="./inc/SharedPointer.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="./inc/stb_vorbis.h">
+      <Filter>Header Files\OGG</Filter>
+    </ClInclude>
+    <ClInclude Include="./inc/StreamingSoundObjectOggImpl.h">
+      <Filter>Header Files\StreamingSoundObject</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="./src/WaveoutDevice.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="./src/main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="./src/SoundObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="./src/MemorySoundObjectWavImpl.cpp">
+      <Filter>Source Files\MemorySoundObject</Filter>
+    </ClCompile>
+    <ClCompile Include="./src/MemorySoundObject.cpp">
+      <Filter>Source Files\MemorySoundObject</Filter>
+    </ClCompile>
+    <ClCompile Include="./src/StreamingSoundObject.cpp">
+      <Filter>Source Files\StreamingSoundObject</Filter>
+    </ClCompile>
+    <ClCompile Include="./src/SoundMixer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="./src/BlockBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="./src/RingBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="./src/HistoryBufferObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="./src/DSPVariables.cpp">
+      <Filter>Source Files\DSP</Filter>
+    </ClCompile>
+    <ClCompile Include="./src/DSPChain.cpp">
+      <Filter>Source Files\DSP</Filter>
+    </ClCompile>
+    <ClCompile Include="./src/SharedPointer.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="./src/StreamingSoundObjectWavImpl.cpp">
+      <Filter>Source Files\StreamingSoundObject</Filter>
+    </ClCompile>
+    <ClCompile Include="./src/stb_vorbis.c">
+      <Filter>Source Files\OGG</Filter>
+    </ClCompile>
+    <ClCompile Include="./src/StreamingSoundObjectOggImpl.cpp">
+      <Filter>Source Files\StreamingSoundObject</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

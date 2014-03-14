@@ -36,7 +36,7 @@ namespace Raptor
 		class StreamingSoundObject : public SoundObject
 		{
 		public:
-			StreamingSoundObject( const char* filePath );
+			StreamingSoundObject( const char* filePath, AudioOrigins::AudioOrigin origin = AudioOrigins::AUDIO_ORIGIN_FILE, size_t length = 0 );
 			~StreamingSoundObject( void );
 
 		public:

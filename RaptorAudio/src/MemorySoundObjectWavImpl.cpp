@@ -32,17 +32,14 @@ using namespace Raptor;
 using namespace Raptor::Audio;
 
 #define NON_COMPATIBLE \
-	printf( "%s : Not a compatible .WAV file!\n", filePath ); \
+	printf( "Not a compatible .WAV file!\n" ); \
 	parent->m_BadFile = true; \
-	fclose( audioFile ); \
 	return; \
 
-MemorySoundObjectWavImpl::MemorySoundObjectWavImpl( const char* filePath, MemorySoundObject* parent )
+MemorySoundObjectWavImpl::MemorySoundObjectWavImpl( MemorySoundObject* parent )
 	:
-MemorySoundObjectImpl( filePath, 0 )
+MemorySoundObjectImpl( 0 )
 {
-	FILE* audioFile = fopen( filePath, "rb" );
-
 	WaveFile* wvFile = new WaveFile;
 
 	parent->GetWaveFileHeader() = wvFile;
@@ -51,16 +48,16 @@ MemorySoundObjectImpl( filePath, 0 )
 
 	unsigned int size = 0;
 
-	fseek( audioFile, 0, SEEK_END );
-	size = ftell( audioFile );
+	parent->m_AudioSource->Seek( 0, SeekOrigins::SEEK_ORIGIN_END );
+	size = parent->m_AudioSource->Tell();
 
 	if ( size <= SIZE_OF_WAV_HEADER ) 
 	{
 		NON_COMPATIBLE
 	}
 
-	fseek( audioFile, 0, SEEK_SET );
-	fread( wvFile->wf_Data, SIZE_OF_WAV_HEADER, 1, audioFile );
+	parent->m_AudioSource->Seek( 0, SeekOrigins::SEEK_ORIGIN_SET );
+	parent->m_AudioSource->Read( wvFile->wf_Data, SIZE_OF_WAV_HEADER, 1 );
 
 	unsigned int blockAlign = wvFile->wf_WaveHeaders->wh_FmtHeader.fh_NumChannels * 
 		wvFile->wf_WaveHeaders->wh_FmtHeader.fh_BitsPerSample / 8;
@@ -104,21 +101,21 @@ MemorySoundObjectImpl( filePath, 0 )
 			{
 			case 8:
 				sampleC = 0;
-				fread( &sampleC, sizeof( char ), 1, audioFile );
+				parent->m_AudioSource->Read( &sampleC, sizeof( char ), 1 );
 				sampleT = ( ( (int) sampleC - 128 ) << 7 );
 				m_BufferChannels[b][i] = sampleT;
 				break;
 			case 16:
-				fread( &m_BufferChannels[b][i], sizeof( short ), 1, audioFile );
+				parent->m_AudioSource->Read( &m_BufferChannels[b][i], sizeof( short ), 1 );
 				break;
 			case 32:
 				sampleF = 0;
-				fread( &sampleF, sizeof( float ), 1, audioFile );
+				parent->m_AudioSource->Read( &sampleF, sizeof( float ), 1 );
 				sampleT = (short) ( sampleF * SHRT_MAX );
 				m_BufferChannels[b][i] = sampleT;
 				break;
 			default:
-				printf( "%s : Unsupported bitrate!\n", filePath );
+				printf( "Unsupported bitrate!\n" );
 				return;
 			}
 		}
@@ -130,7 +127,7 @@ MemorySoundObjectImpl( filePath, 0 )
 
 	m_Parent = parent;
 
-	fclose( audioFile );
+	parent->m_AudioSource->Close();
 }
 
 MemorySoundObjectWavImpl::~MemorySoundObjectWavImpl( void )

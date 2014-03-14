@@ -33,19 +33,18 @@ using namespace Raptor;
 using namespace Raptor::Audio;
 
 #define NON_COMPATIBLE \
-	printf( "%s : Not a compatible .WAV file!\n", filePath ); \
+	printf( "Not a compatible .WAV file!\n" ); \
 	parent->m_BadFile = true; \
 	return; \
 
-StreamingSoundObjectWavImpl::StreamingSoundObjectWavImpl( const char* filePath, StreamingSoundObject* parent )
+StreamingSoundObjectWavImpl::StreamingSoundObjectWavImpl( StreamingSoundObject* parent )
 		:
-StreamingSoundObjectImpl( filePath, 0 ) 
+StreamingSoundObjectImpl( 0 ) 
 {
 	m_GlobalPosition = 0;
 
 	m_UpdateTime = 0;
 
-	m_File = fopen( filePath, "rb" );
 	WaveFile* wvFile = new WaveFile;
 
 	parent->GetWaveFileHeader() = wvFile;
@@ -54,8 +53,8 @@ StreamingSoundObjectImpl( filePath, 0 )
 
 	unsigned int size = 0;
 
-	fseek( m_File, 0, SEEK_END );
-	size = ftell( m_File );
+	parent->m_AudioSource->Seek( 0, SeekOrigins::SEEK_ORIGIN_END );
+	size = parent->m_AudioSource->Tell();
 
 	m_FileSize = size;
 
@@ -64,8 +63,8 @@ StreamingSoundObjectImpl( filePath, 0 )
 		NON_COMPATIBLE
 	}
 
-	fseek( m_File, 0, SEEK_SET );
-	fread( wvFile->wf_Data, SIZE_OF_WAV_HEADER, 1, m_File );
+	parent->m_AudioSource->Seek( 0, SeekOrigins::SEEK_ORIGIN_SET );
+	parent->m_AudioSource->Read( wvFile->wf_Data, SIZE_OF_WAV_HEADER, 1 );
 
 	parent->SetAdvanceAmount( (double) wvFile->wf_WaveHeaders->wh_FmtHeader.fh_SampleRate / (double) SoundMixer::GetMixer()->GetWaveOut()->GetSampleRate() ); 
 
@@ -94,7 +93,7 @@ StreamingSoundObjectImpl( filePath, 0 )
 
 	m_NumChannels = wvFile->wf_WaveHeaders->wh_FmtHeader.fh_NumChannels;
 
-	m_BeginDataSeg = ftell( m_File );
+	m_BeginDataSeg = parent->m_AudioSource->Tell();
 	m_StreamPos = 0;
 
 	m_BufferChannels = (RingBuffer**) malloc( sizeof( RingBuffer* ) * m_NumChannels );
@@ -107,7 +106,7 @@ StreamingSoundObjectImpl( filePath, 0 )
 
 	m_Parent = parent;
 
-	fseek( m_File, ( parent->GetWaveFileHeader()->wf_WaveHeaders->wh_FmtHeader.fh_BitsPerSample / 8 ) * m_StreamPos + m_BeginDataSeg, SEEK_SET );
+	parent->m_AudioSource->Seek( ( parent->GetWaveFileHeader()->wf_WaveHeaders->wh_FmtHeader.fh_BitsPerSample / 8 ) * m_StreamPos + m_BeginDataSeg, SEEK_SET );
 }
 
 StreamingSoundObjectWavImpl::~StreamingSoundObjectWavImpl( void )
@@ -119,8 +118,6 @@ StreamingSoundObjectWavImpl::~StreamingSoundObjectWavImpl( void )
 		delete m_BufferChannels[b];
 
 	free( m_BufferChannels );
-
-	fclose( m_File );
 }
 
 short StreamingSoundObjectWavImpl::GetCurrentSample( unsigned int num )
@@ -160,25 +157,25 @@ bool StreamingSoundObjectWavImpl::UpdateBuffer( void )
 	switch ( m_Parent->GetWaveFileHeader()->wf_WaveHeaders->wh_FmtHeader.fh_BitsPerSample )
 	{
 	case 8:
-		fread( &sampleC, sizeof( char ), 1, m_File );
+		m_Parent->m_AudioSource->Read( &sampleC, sizeof( char ), 1 );
 		sampleT = ( ( (int) sampleC - 128 ) << 7 );
 		val1 = sampleT;
 		if ( m_NumChannels <= 1 ) break;
-		fread( &sampleC, sizeof( char ), 1, m_File );
+		m_Parent->m_AudioSource->Read( &sampleC, sizeof( char ), 1 );
 		sampleT = ( ( (int) sampleC - 128 ) << 7 );
 		val2 = sampleT;
 		break;
 	case 16:
-		fread( &val1, sizeof( short ), 1, m_File );
+		m_Parent->m_AudioSource->Read( &val1, sizeof( short ), 1 );
 		if ( m_NumChannels <= 1 ) break;
-		fread( &val2, sizeof( short ), 1, m_File );
+		m_Parent->m_AudioSource->Read( &val2, sizeof( short ), 1 );
 		break;
 	case 32:
-		fread( &sampleF, sizeof( float ), 1, m_File );
+		m_Parent->m_AudioSource->Read( &sampleF, sizeof( float ), 1 );
 		sampleT = (short) ( sampleF * SHRT_MAX );
 		val1 = sampleT;
 		if ( m_NumChannels <= 1 ) break;
-		fread( &sampleF, sizeof( float ), 1, m_File );
+		m_Parent->m_AudioSource->Read( &sampleF, sizeof( float ), 1 );
 		sampleT = (short) ( sampleF * SHRT_MAX );
 		val2 = sampleT;
 		break;
@@ -186,7 +183,7 @@ bool StreamingSoundObjectWavImpl::UpdateBuffer( void )
 		break;
 	}
 
-	int error = ferror( m_File );
+	int error = m_Parent->m_AudioSource->Error();
 
 	if ( error != 0 )
 	{
@@ -211,7 +208,7 @@ bool StreamingSoundObjectWavImpl::UpdateBuffer( void )
 
 	if ( b == BufferResults::BUFFER_FULL )
 	{
-		fseek( m_File, -( m_Parent->GetWaveFileHeader()->wf_WaveHeaders->wh_FmtHeader.fh_BitsPerSample / 8 ) * m_NumChannels, SEEK_CUR );
+		m_Parent->m_AudioSource->Seek( -( m_Parent->GetWaveFileHeader()->wf_WaveHeaders->wh_FmtHeader.fh_BitsPerSample / 8 ) * m_NumChannels, SEEK_CUR );
 		return false;
 	}
 
@@ -220,7 +217,7 @@ bool StreamingSoundObjectWavImpl::UpdateBuffer( void )
 	if ( m_StreamPos >= m_Parent->GetBufferSize() )
 	{
 		m_StreamPos = 0;
-		fseek( m_File, ( m_Parent->GetWaveFileHeader()->wf_WaveHeaders->wh_FmtHeader.fh_BitsPerSample / 8 ) * m_StreamPos + m_BeginDataSeg, SEEK_SET );
+		m_Parent->m_AudioSource->Seek( ( m_Parent->GetWaveFileHeader()->wf_WaveHeaders->wh_FmtHeader.fh_BitsPerSample / 8 ) * m_StreamPos + m_BeginDataSeg, SEEK_SET );
 	}
 
 	return true;

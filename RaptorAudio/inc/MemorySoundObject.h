@@ -34,7 +34,7 @@ namespace Raptor
 		class MemorySoundObject : public SoundObject
 		{
 		public:
-			MemorySoundObject( const char* filePath );
+			MemorySoundObject( const char* filePath, AudioOrigins::AudioOrigin origin = AudioOrigins::AUDIO_ORIGIN_FILE, size_t length = 0 );
 			~MemorySoundObject( void );
 
 		public:

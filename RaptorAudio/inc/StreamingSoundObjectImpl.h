@@ -36,9 +36,7 @@ namespace Raptor
 		class StreamingSoundObjectImpl
 		{
 		protected:
-			StreamingSoundObjectImpl( const char* filePath, StreamingSoundObject* parent )
-				:
-			m_FilePath( filePath )
+			StreamingSoundObjectImpl( StreamingSoundObject* parent )
 			{}
 
 			virtual ~StreamingSoundObjectImpl( void ) {};
@@ -57,8 +55,6 @@ namespace Raptor
 			unsigned int m_NumChannels;
 			unsigned int m_FileSize;
 			const char* m_FilePath;
-
-			FILE* m_File;
 
 			double m_GlobalPosition;
 		};

@@ -36,9 +36,7 @@ namespace Raptor
 		class MemorySoundObjectImpl
 		{
 		protected:
-			MemorySoundObjectImpl( const char* filePath, MemorySoundObject* parent )
-				:
-			m_FilePath( filePath )
+			MemorySoundObjectImpl( MemorySoundObject* parent )
 			{}
 
 			virtual ~MemorySoundObjectImpl( void ){};
@@ -51,7 +49,6 @@ namespace Raptor
 		protected:
 			short** m_BufferChannels;
 			unsigned int m_NumChannels;
-			const char* m_FilePath;
 		};
 	};
 };

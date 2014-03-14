@@ -32,16 +32,26 @@
 using namespace Raptor;
 using namespace Raptor::Audio;
 
-StreamingSoundObjectOggImpl::StreamingSoundObjectOggImpl( const char* filePath, StreamingSoundObject* parent )
+StreamingSoundObjectOggImpl::StreamingSoundObjectOggImpl( StreamingSoundObject* parent )
 		:
-StreamingSoundObjectImpl( filePath, 0 ) 
+StreamingSoundObjectImpl( 0 ) 
 {
 	m_GlobalPosition = 0;
-	m_File = fopen( filePath, "rb" );
 
 	int error = 0;
 
-	m_OggHandle = stb_vorbis_open_file( m_File, 0, &error, 0 );
+	switch ( parent->m_AudioSource->GetType() )
+	{
+	case AudioOrigins::AUDIO_ORIGIN_FILE:
+		m_OggHandle = stb_vorbis_open_file( (FILE*) parent->m_AudioSource->GetPtrData(), 0, &error, 0 );
+		break;
+
+	case AudioOrigins::AUDIO_ORIGIN_OPENMEMORY_POINT:
+	case AudioOrigins::AUDIO_ORIGIN_OPENMEMORY:
+		m_OggHandle = stb_vorbis_open_memory( (unsigned char*) parent->m_AudioSource->GetPtrData(), (int) parent->m_AudioSource->GetLength(), &error, 0 );
+		break;
+	};
+
 	m_NumChannels = (unsigned int) stb_vorbis_get_info( m_OggHandle ).channels;
 	m_BufferSize = (unsigned int) stb_vorbis_stream_length_in_samples( m_OggHandle );
 	m_TotalSize = m_BufferSize;
@@ -75,8 +85,6 @@ StreamingSoundObjectOggImpl::~StreamingSoundObjectOggImpl( void )
 
 	for ( unsigned int b = 0; b < m_NumChannels; b++ )
 		free( m_BufferChannels[b] );
-
-	fclose( m_File );
 }
 
 short StreamingSoundObjectOggImpl::GetCurrentSample( unsigned int num )
@@ -146,6 +154,15 @@ SoundObjectResults::SoundObjectResult StreamingSoundObjectOggImpl::AdvancePositi
 	if ( m_Parent->GetPosition() >= (double) m_TotalSize )
 	{
 		m_Parent->SetPosition( m_Parent->GetPosition() - (double) m_TotalSize );
+
+		if ( m_Parent->m_Properties->sop_Shared != 0 )
+		{
+			if ( m_Parent->m_Properties->sop_Shared->sp_DSPChain != 0 )
+			{
+				m_Parent->m_Properties->sop_Shared->sp_DSPChain->PerformRandomizePlay();
+				m_Parent->m_Properties->sop_Shared->sp_DSPChain->PerformPerPlayProcessing( m_Parent->m_Properties );
+			}
+		}
 	}
 
 	if ( remain ) return SoundObjectResults::SOUND_OBJECT_PLAYING;

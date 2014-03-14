@@ -37,7 +37,7 @@ m_BadFile( false )
 
 SoundObject::~SoundObject( void )
 {
-
+	delete m_AudioSource;
 }
 
 SoundObjectResults::SoundObjectResult SoundObject::AdvancePosition( void )

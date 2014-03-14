@@ -43,6 +43,12 @@
     <Filter Include="Source Files\OGG">
       <UniqueIdentifier>{d7c39e7e-2132-4bdf-8354-ec2bd895a436}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\File">
+      <UniqueIdentifier>{8b268df0-b0fd-46ad-9f26-ff2678fc23f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\File">
+      <UniqueIdentifier>{dc0499aa-4ee2-45ff-a5e9-ce51ca294c6e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="./inc/WaveoutDevice.h">
@@ -108,6 +114,15 @@
     <ClInclude Include="./inc/StreamingSoundObjectOggImpl.h">
       <Filter>Header Files\StreamingSoundObject</Filter>
     </ClInclude>
+    <ClInclude Include="inc\AudioSource.h">
+      <Filter>Header Files\File</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\AudioSourceFile.h">
+      <Filter>Header Files\File</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\AudioSourceMemory.h">
+      <Filter>Header Files\File</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="./src/WaveoutDevice.cpp">
@@ -157,6 +172,15 @@
     </ClCompile>
     <ClCompile Include="./src/StreamingSoundObjectOggImpl.cpp">
       <Filter>Source Files\StreamingSoundObject</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AudioSource.cpp">
+      <Filter>Source Files\File</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AudioSourceFile.cpp">
+      <Filter>Source Files\File</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AudioSourceMemory.cpp">
+      <Filter>Source Files\File</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

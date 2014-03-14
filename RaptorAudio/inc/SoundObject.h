@@ -24,6 +24,7 @@
 
 #include "SoundObjectProperties.h"
 #include "WaveFile.h"
+#include "AudioSource.h"
 
 namespace Raptor
 {
@@ -79,6 +80,7 @@ namespace Raptor
 		public:
 			WaveFile*& GetWaveFileHeader( void );
 			SoundObjectPropertiesInternal m_Properties;
+			AudioSource* m_AudioSource;
 
 			bool m_BadFile;
 

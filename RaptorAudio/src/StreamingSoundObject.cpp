@@ -27,20 +27,32 @@
 #include <iomanip> 
 #include <string>
 #include <sstream>
+#include "AudioSourceFile.h"
+#include "AudioSourceMemory.h"
 
 using namespace Raptor;
 using namespace Raptor::Audio;
 
-StreamingSoundObject::StreamingSoundObject( const char* filePath )
+StreamingSoundObject::StreamingSoundObject( const char* fileNameOrPtr, AudioOrigins::AudioOrigin origin, size_t length )
 		:
 SoundObject(),
 m_SoundObjectImpl( 0 )
 {
-	FILE* tempRead = fopen( filePath, "rb" );
-
-	if ( tempRead == 0 )
+	switch ( origin )
 	{
-		printf( "%s : File does not exist!\n", filePath );
+	case AudioOrigins::AUDIO_ORIGIN_FILE:
+		m_AudioSource = new AudioSourceFile( fileNameOrPtr );
+		break;
+
+	case AudioOrigins::AUDIO_ORIGIN_OPENMEMORY_POINT:
+	case AudioOrigins::AUDIO_ORIGIN_OPENMEMORY:
+		m_AudioSource = new AudioSourceMemory( fileNameOrPtr, length, origin );
+		break;
+	};
+
+	if ( !m_AudioSource->CheckIfLoaded() )
+	{
+		printf( "%s : File does not exist!\n", fileNameOrPtr );
 		m_BadFile = true;
 		return;
 	}
@@ -49,19 +61,21 @@ m_SoundObjectImpl( 0 )
 
 	char magic[4];
 
-	fread( magic, 4, 1, tempRead );
-	fclose( tempRead );
+	m_AudioSource->Read( magic, 4, 1 );
+	m_AudioSource->Seek( 0, SeekOrigins::SEEK_ORIGIN_SET );
 
 	if ( strncmp( magic, "RIFF", 4 ) == 0 )
 	{
-		m_SoundObjectImpl = new StreamingSoundObjectWavImpl( filePath, this );
+		m_SoundObjectImpl = new StreamingSoundObjectWavImpl( this );
+		m_SoundObjectImpl->m_FilePath = fileNameOrPtr;
 		m_NumChannels = m_SoundObjectImpl->m_NumChannels;
 		return;
 	}
 
 	else if ( strncmp( magic, "OggS", 4 ) == 0 )
 	{
-		m_SoundObjectImpl = new StreamingSoundObjectOggImpl( filePath, this );
+		m_SoundObjectImpl = new StreamingSoundObjectOggImpl( this );
+		m_SoundObjectImpl->m_FilePath = fileNameOrPtr;
 		m_NumChannels = m_SoundObjectImpl->m_NumChannels;
 		return;
 	}
@@ -70,7 +84,7 @@ m_SoundObjectImpl( 0 )
 
 	m_BadFile = true;
 
-	printf( "%s : Not a compatible file!\n", filePath );
+	printf( "%s : Not a compatible file!\n", fileNameOrPtr );
 	return;
 }
 

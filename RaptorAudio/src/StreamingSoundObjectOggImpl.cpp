@@ -119,8 +119,8 @@ bool StreamingSoundObjectOggImpl::UpdateBuffer( void )
 
 	for ( unsigned int i = 0; i < m_BufferSize; i++ )
 	{
-		m_BufferChannels[0][i] = m_BufferChannelsInterleaved[i*2+0];
-		if ( m_NumChannels > 1 ) m_BufferChannels[1][i] = m_BufferChannelsInterleaved[i*2+1];
+		m_BufferChannels[0][i] = m_BufferChannelsInterleaved[i*m_NumChannels+0];
+		if ( m_NumChannels > 1 ) m_BufferChannels[1][i] = m_BufferChannelsInterleaved[i*m_NumChannels+1];
 	}
 
 	return true;

@@ -64,6 +64,7 @@ m_SoundObjectImpl( 0 )
 	}
 
 	m_SoundObjectImpl = 0;
+	m_BadFile = true;
 
 	printf( "%s : Not a compatible file!\n", filePath );
 	return;

@@ -62,7 +62,7 @@ StreamingSoundObjectImpl( 0 )
 	if ( m_NumChannels > 2 ) m_NumChannels = 2;
 
 	m_BufferChannels = (short**) malloc( sizeof( short* ) * m_NumChannels );
-	m_BufferChannelsInterleaved = (short*) malloc( sizeof( short ) * m_BufferSize * 2 );
+	m_BufferChannelsInterleaved = (short*) malloc( sizeof( short ) * m_BufferSize * m_NumChannels );
 
 	for ( unsigned int i = 0; i < m_NumChannels; i++ )
 	{

@@ -98,7 +98,8 @@ short StreamingSoundObjectOggImpl::GetCurrentSample( unsigned int num )
 
 	short val1 = m_BufferChannels[num][ ( (int) position ) % m_BufferSize ];
 
-	int nextPos = (int) ( position + 1 ) % m_BufferSize;
+	int nextPos = (int) ( position + 1 );
+	if ( nextPos >= (int) m_BufferSize ) nextPos = (int) m_BufferSize - 1;
 
 	short val2 = m_BufferChannels[num][ nextPos ];
 

@@ -38,14 +38,22 @@ StreamingSoundObject::StreamingSoundObject( const char* fileNameOrPtr, AudioOrig
 SoundObject(),
 m_SoundObjectImpl( 0 )
 {
+	const char* ptrChoice;
+
 	switch ( origin )
 	{
 	case AudioOrigins::AUDIO_ORIGIN_FILE:
+		ptrChoice = fileNameOrPtr;
 		m_AudioSource = new AudioSourceFile( fileNameOrPtr );
 		break;
 
-	case AudioOrigins::AUDIO_ORIGIN_OPENMEMORY_POINT:
 	case AudioOrigins::AUDIO_ORIGIN_OPENMEMORY:
+		m_AudioSource = new AudioSourceMemory( fileNameOrPtr, length, origin );
+		ptrChoice = (const char*) m_AudioSource->GetPtrData();
+		break;
+
+	case AudioOrigins::AUDIO_ORIGIN_OPENMEMORY_POINT:
+		ptrChoice = fileNameOrPtr;
 		m_AudioSource = new AudioSourceMemory( fileNameOrPtr, length, origin );
 		break;
 	};
@@ -67,7 +75,7 @@ m_SoundObjectImpl( 0 )
 	if ( strncmp( magic, "RIFF", 4 ) == 0 )
 	{
 		m_SoundObjectImpl = new StreamingSoundObjectWavImpl( this );
-		m_SoundObjectImpl->m_FilePath = fileNameOrPtr;
+		m_SoundObjectImpl->m_FilePath = ptrChoice;
 		m_NumChannels = m_SoundObjectImpl->m_NumChannels;
 		return;
 	}
@@ -75,7 +83,7 @@ m_SoundObjectImpl( 0 )
 	else if ( strncmp( magic, "OggS", 4 ) == 0 )
 	{
 		m_SoundObjectImpl = new StreamingSoundObjectOggImpl( this );
-		m_SoundObjectImpl->m_FilePath = fileNameOrPtr;
+		m_SoundObjectImpl->m_FilePath = ptrChoice;
 		m_NumChannels = m_SoundObjectImpl->m_NumChannels;
 		return;
 	}

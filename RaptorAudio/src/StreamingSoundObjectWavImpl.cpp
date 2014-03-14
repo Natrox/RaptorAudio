@@ -147,6 +147,7 @@ const short* StreamingSoundObjectWavImpl::GetChannelPtr( unsigned int num )
 
 bool StreamingSoundObjectWavImpl::UpdateBuffer( void )
 {
+	int sampleI;
 	unsigned char sampleC;
 	float sampleF;
 	short sampleT;
@@ -169,6 +170,15 @@ bool StreamingSoundObjectWavImpl::UpdateBuffer( void )
 		m_Parent->m_AudioSource->Read( &val1, sizeof( short ), 1 );
 		if ( m_NumChannels <= 1 ) break;
 		m_Parent->m_AudioSource->Read( &val2, sizeof( short ), 1 );
+		break;
+	case 24:
+		m_Parent->m_AudioSource->Read( &sampleI, 3, 1 );
+		sampleT = (short) ( sampleI >> 8 );
+		val1 = sampleT;
+		if ( m_NumChannels <= 1 ) break;
+		m_Parent->m_AudioSource->Read( &sampleI, 3, 1 );
+		sampleT = (short) ( sampleI >> 8 );
+		val2 = sampleT;
 		break;
 	case 32:
 		m_Parent->m_AudioSource->Read( &sampleF, sizeof( float ), 1 );

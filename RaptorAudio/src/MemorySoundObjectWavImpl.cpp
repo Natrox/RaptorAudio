@@ -89,6 +89,7 @@ MemorySoundObjectImpl( 0 )
 		m_BufferChannels[i] = (short*) malloc( sizeof( short ) * parent->GetBufferSize() );
 	}
 
+	int sampleI;
 	unsigned char sampleC;
 	float sampleF;
 	short sampleT;
@@ -107,6 +108,12 @@ MemorySoundObjectImpl( 0 )
 				break;
 			case 16:
 				parent->m_AudioSource->Read( &m_BufferChannels[b][i], sizeof( short ), 1 );
+				break;
+			case 24:
+				sampleI = 0;
+				parent->m_AudioSource->Read( &sampleI, 3, 1 );
+				sampleT = (short) ( sampleI >> 8 );
+				m_BufferChannels[b][i] = sampleT;
 				break;
 			case 32:
 				sampleF = 0;

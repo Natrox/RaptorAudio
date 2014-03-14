@@ -46,7 +46,7 @@ StreamingSoundObjectImpl( filePath, 0, 0 )
 	m_BufferSize = (unsigned int) stb_vorbis_stream_length_in_samples( m_OggHandle );
 	m_TotalSize = m_BufferSize;
 
-	if ( m_BufferSize > wvOut->GetSampleRate() * 10 ) m_BufferSize = wvOut->GetSampleRate() * 10;
+	if ( m_BufferSize > wvOut->GetSampleRate() * 5 ) m_BufferSize = wvOut->GetSampleRate() * 5;
 	if ( m_NumChannels > 2 ) m_NumChannels = 2;
 
 	m_BufferChannels = (short**) malloc( sizeof( short* ) * m_NumChannels );
@@ -106,15 +106,17 @@ bool StreamingSoundObjectOggImpl::UpdateBuffer( void )
 {
 	int samplesGotten = stb_vorbis_get_samples_short_interleaved( m_OggHandle, m_NumChannels, m_BufferChannelsInterleaved, m_BufferSize * m_NumChannels ); 
 
-	if ( samplesGotten == 0 && !m_Parent->GetLooping() )
+	if ( samplesGotten != m_BufferSize && m_BufferSize && !m_Parent->GetLooping() )
 	{
 		return false;
 	}
 
-	if ( samplesGotten == 0 && m_Parent->GetLooping() )
+	if ( samplesGotten != m_BufferSize && m_Parent->GetLooping() )
 	{
+		int remainder = ( m_BufferSize * m_NumChannels - samplesGotten * m_NumChannels );
+
 		stb_vorbis_seek_start( m_OggHandle );
-		stb_vorbis_get_samples_short_interleaved( m_OggHandle, m_NumChannels, m_BufferChannelsInterleaved, m_BufferSize * m_NumChannels ); 
+		stb_vorbis_get_samples_short_interleaved( m_OggHandle, m_NumChannels, m_BufferChannelsInterleaved + samplesGotten * m_NumChannels, remainder ); 
 	}
 
 	for ( unsigned int i = 0; i < m_BufferSize; i++ )

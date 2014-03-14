@@ -31,7 +31,7 @@
 using namespace Raptor;
 using namespace Raptor::Audio;
 
-StreamingSoundObject::StreamingSoundObject( const char* filePath, WaveoutDevice* wvOut )
+StreamingSoundObject::StreamingSoundObject( const char* filePath )
 		:
 SoundObject(),
 m_SoundObjectImpl( 0 )
@@ -54,14 +54,14 @@ m_SoundObjectImpl( 0 )
 
 	if ( strncmp( magic, "RIFF", 4 ) == 0 )
 	{
-		m_SoundObjectImpl = new StreamingSoundObjectWavImpl( filePath, wvOut, this );
+		m_SoundObjectImpl = new StreamingSoundObjectWavImpl( filePath, this );
 		m_NumChannels = m_SoundObjectImpl->m_NumChannels;
 		return;
 	}
 
 	else if ( strncmp( magic, "OggS", 4 ) == 0 )
 	{
-		m_SoundObjectImpl = new StreamingSoundObjectOggImpl( filePath, wvOut, this );
+		m_SoundObjectImpl = new StreamingSoundObjectOggImpl( filePath, this );
 		m_NumChannels = m_SoundObjectImpl->m_NumChannels;
 		return;
 	}

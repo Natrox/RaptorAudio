@@ -36,7 +36,7 @@ namespace Raptor
 		class MemorySoundObjectImpl
 		{
 		protected:
-			MemorySoundObjectImpl( const char* filePath, WaveoutDevice* wvOut, MemorySoundObject* parent )
+			MemorySoundObjectImpl( const char* filePath, MemorySoundObject* parent )
 				:
 			m_FilePath( filePath )
 			{}

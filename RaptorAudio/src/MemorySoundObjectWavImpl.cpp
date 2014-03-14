@@ -26,6 +26,7 @@
 #include <iomanip> 
 #include <string>
 #include <sstream>
+#include "SoundMixer.h"
 
 using namespace Raptor;
 using namespace Raptor::Audio;
@@ -36,9 +37,9 @@ using namespace Raptor::Audio;
 	fclose( audioFile ); \
 	return; \
 
-MemorySoundObjectWavImpl::MemorySoundObjectWavImpl( const char* filePath, WaveoutDevice* wvOut, MemorySoundObject* parent )
+MemorySoundObjectWavImpl::MemorySoundObjectWavImpl( const char* filePath, MemorySoundObject* parent )
 	:
-MemorySoundObjectImpl( filePath, 0, 0 )
+MemorySoundObjectImpl( filePath, 0 )
 {
 	FILE* audioFile = fopen( filePath, "rb" );
 
@@ -125,7 +126,7 @@ MemorySoundObjectImpl( filePath, 0, 0 )
 
 	m_NumChannels = wvFile->wf_WaveHeaders->wh_FmtHeader.fh_NumChannels;
 	wvFile->wf_WaveHeaders->wh_FmtHeader.fh_BitsPerSample = 16;
-	parent->SetAdvanceAmount( (double) wvFile->wf_WaveHeaders->wh_FmtHeader.fh_SampleRate / (double) wvOut->GetSampleRate() );
+	parent->SetAdvanceAmount( (double) wvFile->wf_WaveHeaders->wh_FmtHeader.fh_SampleRate / (double) SoundMixer::GetMixer()->GetWaveOut()->GetSampleRate() );
 
 	m_Parent = parent;
 

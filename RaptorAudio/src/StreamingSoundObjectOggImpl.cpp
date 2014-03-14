@@ -32,9 +32,9 @@
 using namespace Raptor;
 using namespace Raptor::Audio;
 
-StreamingSoundObjectOggImpl::StreamingSoundObjectOggImpl( const char* filePath, WaveoutDevice* wvOut, StreamingSoundObject* parent )
+StreamingSoundObjectOggImpl::StreamingSoundObjectOggImpl( const char* filePath, StreamingSoundObject* parent )
 		:
-StreamingSoundObjectImpl( filePath, 0, 0 ) 
+StreamingSoundObjectImpl( filePath, 0 ) 
 {
 	m_GlobalPosition = 0;
 	m_File = fopen( filePath, "rb" );
@@ -45,6 +45,8 @@ StreamingSoundObjectImpl( filePath, 0, 0 )
 	m_NumChannels = (unsigned int) stb_vorbis_get_info( m_OggHandle ).channels;
 	m_BufferSize = (unsigned int) stb_vorbis_stream_length_in_samples( m_OggHandle );
 	m_TotalSize = m_BufferSize;
+
+	WaveoutDevice* wvOut = SoundMixer::GetMixer()->GetWaveOut();
 
 	if ( m_BufferSize > wvOut->GetSampleRate() * 5 ) m_BufferSize = wvOut->GetSampleRate() * 5;
 	if ( m_NumChannels > 2 ) m_NumChannels = 2;

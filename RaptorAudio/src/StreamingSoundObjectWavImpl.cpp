@@ -37,9 +37,9 @@ using namespace Raptor::Audio;
 	parent->m_BadFile = true; \
 	return; \
 
-StreamingSoundObjectWavImpl::StreamingSoundObjectWavImpl( const char* filePath, WaveoutDevice* wvOut, StreamingSoundObject* parent )
+StreamingSoundObjectWavImpl::StreamingSoundObjectWavImpl( const char* filePath, StreamingSoundObject* parent )
 		:
-StreamingSoundObjectImpl( filePath, 0, 0 ) 
+StreamingSoundObjectImpl( filePath, 0 ) 
 {
 	m_GlobalPosition = 0;
 
@@ -67,7 +67,7 @@ StreamingSoundObjectImpl( filePath, 0, 0 )
 	fseek( m_File, 0, SEEK_SET );
 	fread( wvFile->wf_Data, SIZE_OF_WAV_HEADER, 1, m_File );
 
-	parent->SetAdvanceAmount( (double) wvFile->wf_WaveHeaders->wh_FmtHeader.fh_SampleRate / (double) wvOut->GetSampleRate() ); 
+	parent->SetAdvanceAmount( (double) wvFile->wf_WaveHeaders->wh_FmtHeader.fh_SampleRate / (double) SoundMixer::GetMixer()->GetWaveOut()->GetSampleRate() ); 
 
 	unsigned int blockAlign = wvFile->wf_WaveHeaders->wh_FmtHeader.fh_NumChannels * 
 		wvFile->wf_WaveHeaders->wh_FmtHeader.fh_BitsPerSample / 8;

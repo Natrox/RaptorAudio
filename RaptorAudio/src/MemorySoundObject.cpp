@@ -30,7 +30,7 @@
 using namespace Raptor;
 using namespace Raptor::Audio;
 
-MemorySoundObject::MemorySoundObject( const char* filePath, WaveoutDevice* wvOut )
+MemorySoundObject::MemorySoundObject( const char* filePath )
 	:
 SoundObject(),
 m_SoundObjectImpl( 0 )
@@ -53,7 +53,7 @@ m_SoundObjectImpl( 0 )
 	
 	if ( strncmp( magic, "RIFF", 4 ) == 0 )
 	{
-		m_SoundObjectImpl = new MemorySoundObjectWavImpl( filePath, wvOut, this );
+		m_SoundObjectImpl = new MemorySoundObjectWavImpl( filePath, this );
 		m_NumChannels = m_SoundObjectImpl->m_NumChannels;
 		return;
 	}

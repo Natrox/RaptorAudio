@@ -39,7 +39,7 @@ namespace Raptor
 		class StreamingSoundObjectOggImpl : protected StreamingSoundObjectImpl
 		{
 		protected:
-			StreamingSoundObjectOggImpl( const char* filePath, WaveoutDevice* wvOut, StreamingSoundObject* parent );
+			StreamingSoundObjectOggImpl( const char* filePath, StreamingSoundObject* parent );
 			~StreamingSoundObjectOggImpl( void );
 			friend class StreamingSoundObject;
 

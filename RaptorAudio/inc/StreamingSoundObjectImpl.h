@@ -36,7 +36,7 @@ namespace Raptor
 		class StreamingSoundObjectImpl
 		{
 		protected:
-			StreamingSoundObjectImpl( const char* filePath, WaveoutDevice* wvOut, StreamingSoundObject* parent )
+			StreamingSoundObjectImpl( const char* filePath, StreamingSoundObject* parent )
 				:
 			m_FilePath( filePath )
 			{}

@@ -36,7 +36,7 @@ namespace Raptor
 		class StreamingSoundObject : public SoundObject
 		{
 		public:
-			StreamingSoundObject( const char* filePath, WaveoutDevice* wvOut );
+			StreamingSoundObject( const char* filePath );
 			~StreamingSoundObject( void );
 
 		public:

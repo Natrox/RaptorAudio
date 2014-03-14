@@ -275,7 +275,7 @@ void SoundMixer::PlaySoundObject( SoundObject* soundToPlay, SharedProperties con
 	if ( soundToPlay->GetType() == SoundObject::SOUND_STREAMED )
 	{
 		StreamingSoundObject* streaming = (StreamingSoundObject*) soundToPlay;
-		soundToPlay = new StreamingSoundObject( streaming->GetFilePath(), m_WaveOutDevice );
+		soundToPlay = new StreamingSoundObject( streaming->GetFilePath() );
 	}
 
 	newProp->sop_Object = soundToPlay;
@@ -327,7 +327,7 @@ SoundObjectProperties SoundMixer::CreateProperties( SoundObject* soundToUse, Sha
 	if ( soundToUse->GetType() == SoundObject::SOUND_STREAMED )
 	{
 		StreamingSoundObject* streaming = (StreamingSoundObject*) soundToUse;
-		soundToUse = new StreamingSoundObject( streaming->GetFilePath(), m_WaveOutDevice );
+		soundToUse = new StreamingSoundObject( streaming->GetFilePath() );
 	}
 
 	newProp->sop_Object = soundToUse;

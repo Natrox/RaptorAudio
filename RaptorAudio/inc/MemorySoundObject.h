@@ -34,7 +34,7 @@ namespace Raptor
 		class MemorySoundObject : public SoundObject
 		{
 		public:
-			MemorySoundObject( const char* filePath, WaveoutDevice* wvOut );
+			MemorySoundObject( const char* filePath );
 			~MemorySoundObject( void );
 
 		public:

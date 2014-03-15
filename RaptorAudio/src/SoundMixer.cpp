@@ -187,9 +187,14 @@ void SoundMixer::SetProfile( SoundMixerProfiles::SoundMixerProfile profile )
 
 void SoundMixer::SetListenerAttributes( vec3 position, vec3 forward, vec3 up )
 {
-	m_Forward = forward;
-	m_Up = up;
-	m_Position = position;
+	if ( TryEnterCriticalSection( &m_CameraSettingsCSec ) )
+	{
+		m_Forward = forward;
+		m_Up = up;
+		m_Position = position;
+
+		LeaveCriticalSection( &m_CameraSettingsCSec );
+	}
 }
 
 void SoundMixer::AddGroup( HistoryBufferObject* historyObject )
@@ -221,6 +226,7 @@ SoundMixer::SoundMixer( unsigned int sampleRate, unsigned int bufferSize, SoundM
 	InitializeCriticalSection( &m_SoundListCSec );
 	InitializeCriticalSection( &m_TempSoundListCSec );
 	InitializeCriticalSection( &m_SoundRemoveCSec );
+	InitializeCriticalSection( &m_CameraSettingsCSec );
 
 	m_MixerStopEvent = CreateEvent( 0, true, 0, 0 );
 	ResetEvent( m_MixerStopEvent );
@@ -257,6 +263,7 @@ SoundMixer::~SoundMixer( void )
 	DeleteCriticalSection( &m_SoundListCSec );
 	DeleteCriticalSection( &m_TempSoundListCSec );
 	DeleteCriticalSection( &m_SoundRemoveCSec );
+	DeleteCriticalSection( &m_CameraSettingsCSec );
 
 	delete m_WaveOutDevice;
 
@@ -404,7 +411,11 @@ void SoundMixer::MixSoundList( void )
 	if ( m_RingPlaybackBuffer != 0 ) maxCount = m_RingPlaybackBuffer->GetBufferSize() / 12;
 
 	size_t soundSize = m_Sounds.size();
+
+	EnterCriticalSection( &m_CameraSettingsCSec );
 	vec3 right = cross( m_Forward, m_Up );
+	m_TempPosition = m_Position;
+	LeaveCriticalSection( &m_CameraSettingsCSec );
 
 	float minVal = 0.25f;
 
@@ -421,7 +432,7 @@ void SoundMixer::MixSoundList( void )
 
 		if ( properties->sop_Sound3D != 0 )
 		{
-			if ( properties->sop_Sound3D->s3d_Position == m_Position )
+			if ( properties->sop_Sound3D->s3d_Position == m_TempPosition )
 			{
 				properties->sop_Sound3D->s3d_LeftVolume = 1.0f;
 				properties->sop_Sound3D->s3d_RightVolume = 1.0f;
@@ -431,7 +442,7 @@ void SoundMixer::MixSoundList( void )
 				continue;
 			}
 
-			vec3 direction = properties->sop_Sound3D->s3d_Position - m_Position;
+			vec3 direction = properties->sop_Sound3D->s3d_Position - m_TempPosition;
 			vec3 nDirection = length( direction ) <= 1.0 ? direction : normalize( direction );
 			float lDirection = length( direction );
 

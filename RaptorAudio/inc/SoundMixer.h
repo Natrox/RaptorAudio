@@ -102,6 +102,7 @@ namespace Raptor
 			CRITICAL_SECTION m_SoundListCSec;
 			CRITICAL_SECTION m_TempSoundListCSec;
 			CRITICAL_SECTION m_SoundRemoveCSec;
+			CRITICAL_SECTION m_CameraSettingsCSec;
 			void MixSoundList( void );
 
 		private:
@@ -130,10 +131,7 @@ namespace Raptor
 			std::list< SoundObjectPropertiesInternal > m_TempSounds;
 
 		private:
-			vec3 m_TempForward;
-			vec3 m_TempUp;
 			vec3 m_TempPosition;
-
 			vec3 m_Forward;
 			vec3 m_Up;
 			vec3 m_Position;

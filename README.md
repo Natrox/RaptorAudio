@@ -12,11 +12,13 @@ You cannot delete DSP variables, when they are initialized, they remain until th
 
 Acknowledgements
 --------------
-I would like to thank the following people;
+I would like to thank the following people/entities;
 
 Nils Desle, my teacher at NHTV IGAD, for teaching me about audio programming in his audio course and providing feedback.
 
 <a href="http://www.nothings.org/">Sean Barrett</a>, for providing stb_vorbis, which is used for OGG decompression in RaptorAudio.
+
+<a href="http://glm.g-truc.net/0.9.5/index.html">G-Truc Creation</a>, for providing GLM, which is used for vector math.
 
 Features
 --------

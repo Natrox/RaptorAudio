@@ -8,10 +8,13 @@ Current Issues
 
 WAV files with metadata are not supported at this point in time. Please use OGG if you want to retain metadata.
 
+Only regular WAV files are supported. WAV files that are compressed or use DPCM do not work.
+
 You cannot delete DSP variables, when they are initialized, they remain until the program is closed.
 
 Acknowledgements
 --------------
+
 I would like to thank the following people/entities;
 
 Nils Desle, my teacher at NHTV IGAD, for teaching me about audio programming in his audio course and providing feedback.

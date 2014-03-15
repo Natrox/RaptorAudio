@@ -8,6 +8,8 @@ Current Issues
 
 WAV files with metadata are not supported at this point in time. Please use OGG if you want to retain metadata.
 
+You cannot delete DSP variables, when they are initialized, they remain until the program is closed.
+
 Acknowledgements
 --------------
 I would like to thank the following people;
@@ -38,6 +40,11 @@ Feature sheet:
 Streaming or not?
 -------
 OGG is only support with StreamingSoundObject. StreamingSoundObject does not necessarily mean that the whole file is streamed from disk, it merely means that not all of the sound data will be available at all times. Note that it is possible to use StreamingSoundObject with pre-loaded memory. As such, **MemorySoundObject does not support OGG!**
+
+Recommendations
+-----------
+
+I recommend that you use WAV for sound effects and OGG for music. 
 
 Usage
 =======
@@ -91,8 +98,22 @@ SoundMixer::GetMixer()->Stop( props );
 
 Note that it is perfectly safe to use the 'props' object anywhere. It is garbage-collected, so it exists for as long as you keep it, and the sound mixer will safely ignore it if it is not relevant anymore.
 
+Sound loading
+-------------
+
+Sounds may be loaded from files or from memory;
+
+Type | Explanation
+--- | ---
+AUDIO_ORIGIN_FILE | Load sound from file.
+AUDIO_ORIGIN_OPENMEMORY | Copy memory, and load sound from copied memory.
+AUDIO_ORIGIN_OPENMEMORY_POINT | Load sound directly from memory. Memory should not be freed before the sound is stopped.
+
+It is possible to stream a WAV file from memory, however impractical that may be. It is recommended that you load from memory whenever you can (even better using AUDIO_ORIGIN_OPENMEMORY_POINT), to avoid using I/O too much. Note that, if you stream from memory and use AUDIO_ORIGIN_OPENMEMORY, the data will be copied for each instance of the sound.
+
 Shared properties
 -----------------
+
 RaptorAudio provides a 'SharedProperties' object. This object can be shared between sounds (or used individually), and contains variables that govern the pitch, volume and DSP chain of sounds;
 
 ```cpp
@@ -102,3 +123,133 @@ sprops->sp_Volume = 0.5;
 // Link to a SoundObjectProperties
 SoundObjectProperties props = SoundMixer::GetMixer()->CreateProperties( sound, sprops );
 ```
+
+These shared properties are also used for DSP effects.
+
+DSP Chain
+---------
+
+RaptorAudio has a DSP system that works by chaining a variety of effects. These effects can be used with different output semantics;
+
+Ouptput semantic | Effect
+--- | ---
+SEMANTIC_CARRY_SIGNAL | Carries the output samples over to the next effect in the chain. Does not change the DSP chain global samples.
+SEMANTIC_SUBSTITUTE_SIGNAL | Replaces the DSP chain global samples to the output samples.
+SEMANTIC_ADDITIVE_SIGNAL | Adds the output samples to the DSP chain global samples.
+SEMANTIC_SUBTRACTIVE_SIGNAL | Subtracts the output samples from the DSP chain global samples.
+SEMANTIC_NO_SIGNAL | Does not output any samples.
+SEMNATIC_PERFORM_PER_PLAY | Only runs the effect once per play (should be used for “PitchShift”)
+
+Here is an example on how to use the DSP system to create a HighPass;
+
+```cpp
+DSPChain* chain = new DSPChain();
+
+// Each effect has a variable set containing a number of variables.
+DSPVariableSet set1;
+
+// Create a variable object by name
+DSPVariable* var1 = DSPVariables::CreateVariableObject( "LowPassLevel", DSPVariableSemantics::SEMANTIC_USER_VARIABLE, 90 );
+// ..or
+DSPVariable* var1 = DSPVariables::CreateVariableObject( "LowPassLevel", DSPVariableSemantics::SEMANTIC_RANDOM_RANGED_PLAY, 40, 90 );
+
+set1.dvs_Val1 = var;
+
+chain->AddToChain( "HighPass", DSPFunctionSemantics::SEMANTIC_SUBTRACTIVE_SIGNAL, BetterLowPass, set1 );
+
+...
+
+SharedProperties sprops = CreateSharedProperties();
+sprops->sp_DSPChain = chain;
+
+...
+
+// To disable the effect
+const DSPChainEntry* entry = chain->GetEffectEntry( "HighPass" );
+if ( entry != 0 ) entry->dce_Enabled = false;
+```
+
+It is up to the creator of the DSP effect to declare what meaning a value (dvs_Val1/dvs_Val2/dvs_Val3) has.
+
+Here is another example of a DSP chain;
+
+```cpp
+chain->AddToChain( "HighPass", DSPFunctionSemantics::SEMANTIC_CARRY_SIGNAL, BetterLowPass, set1 );
+chain->AddToChain( "Amplify", DSPFunctionSemantics::SEMANTIC_CARRY_SIGNAL, Amplify, set2 );
+chain->AddToChain( "Stereo Expand", DSPFunctionSemantics::SEMANTIC_SUBSTITUTE_SIGNAL, StereoExpand, set3 );
+```
+
+Preloaded DSP effects can be found in 'DSPFunctions.h'.
+
+3D Sound
+-----------
+
+Every sound can be played back in 3D;
+
+```cpp
+Sound3DDescription* desc3d = CreateSound3DDescription();
+
+desc3d->s3d_AttenuationMax = 300; // Set max attenuation (sound has 0.0 volume at x units)
+desc3d->s3d_AttenuationMin = 15; // Set max attenuation (sound has 1.0 volume at x units)
+desc3d->s3d_StereoInnerDistance = 5; // Sound is fully stereo from this point
+desc3d->s3d_StereoOuterDistance = 20; // Sound is fully mono from this point
+desc3d->s3d_Position = glm::vec3( 1, 5, 16 ); // Set a position in 3D space. May be changed whenever!
+```
+
+The stereo distances are used to interpolate between a mono and stereo version of a sound, which is useful for soundscapes. The position can be changed at any point in time.
+
+Of course, to perform 3D calculations, RaptorAudio will need to have camera data;
+
+```cpp
+// Set this each frame (usually)
+SoundMixer::GetMixer()->SetListenerAttributes( cameraPos, cameraForward, cameraUp );
+```
+Sound profiles
+----------
+
+The sound mixer may be set to a headphones or speaker profile at any time. The difference between these profiles is that the headphones profile disables hard panning by duplicating audio from one channel into another at a lower volume.
+
+```cpp
+SoundMixer::GetMixer()->SetProfile( SoundMixerProfiles::SOUND_MIXER_HEADPHONES );
+SoundMixer::GetMixer()->SetProfile( SoundMixerProfiles::SOUND_MIXER_SPEAKERS );
+```
+
+This volume of duplication is currently not tweakable.
+
+History buffers (echoes)
+------------
+
+RaptorAudio has support for generic echoes. This is done using the HistoryBufferObject, a special kind of SoundObject. The sound objects are fully compatible with the shared properties and DSP systems. Usage is as follows;
+
+```cpp
+SoundObjectProperties histObjProp = CreateSoundObjectProperties();
+HistoryBufferObject* histObj = new HistoryBufferObject( ECHO_PARAMETERS_TO_SAMPLES( mixerSampleRate, amountOfEchoes, delayInBetween ) );
+
+// This factor is used to decrease the levels (level^volumeFactor).
+double volumeFactor = 2.0;
+
+histObj->InitializeEchoes( histObjProp, amountOfEchoes, delayInBetween, volumeFactor );
+SoundMixer::GetMixer()->AddGroup( histObj );
+
+...
+
+// For a sound
+SoundObjectProperties props = SoundMixer::GetMixer()->CreateProperties( sound );
+props->SetHistoryBufferObject( histObj );
+```
+
+All sounds connected to this history buffer will produce an echo.
+
+Safety of SoundObjectProperties and SharedProperties
+-----
+
+These two classes are garbage-collected, because in the past, they could be used after expiration (because the sound stopped playing or else). It was really hard to actually figure out if the objects were safe to use, so I decided to use thread-safe shared pointers to manage the lifetime. Now, using these classes is safe, even if the sound has stopped playing and doesn't exist anymore in the mixer.
+
+Future
+------
+
+These are things that should be done at some point;
+- Improve the DSP Chain and HistoryBufferObject.
+- Improve documentation.
+- Decrease verbosity of the advanced functionality.
+- Simplify sound loading.

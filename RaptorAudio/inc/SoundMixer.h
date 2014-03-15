@@ -70,6 +70,9 @@ namespace Raptor
 			static void DeinitializeMixer( void );
 
 		public:
+			void StopAllSounds( void );
+
+		public:
 			void AddGroup( HistoryBufferObject* historyObject );
 			void SetListenerAttributes( vec3 position, vec3 forward, vec3 up );
 			void SetProfile( SoundMixerProfiles::SoundMixerProfile profile );

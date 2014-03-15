@@ -20,7 +20,8 @@ int main( void )
 	SoundMixer::InitializeMixer( RATE, 4410, SoundMixerBufferingModes::BUFFERING_BLOCKS, SoundMixerProfiles::SOUND_MIXER_SPEAKERS );
 
 	StreamingSoundObject* song = new StreamingSoundObject( "Space Faring.ogg" );
-	SoundObjectProperties prop = SoundMixer::GetMixer()->CreateProperties( song );
+	SharedProperties sprop = CreateSharedProperties();
+	SoundObjectProperties prop = SoundMixer::GetMixer()->CreateProperties( song, sprop );
 
 	prop->SetLooping( true );
 

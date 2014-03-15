@@ -114,6 +114,37 @@ namespace Raptor
 	};
 };
 
+void SoundMixer::StopAllSounds( void )
+{
+	EnterCriticalSection( &m_SoundListCSec );
+	EnterCriticalSection( &m_TempSoundListCSec );
+	EnterCriticalSection( &m_SoundRemoveCSec );
+
+	for ( unsigned int i = 0; i < m_Sounds.size(); i++ )
+	{
+		if ( m_Sounds[i]->sop_Object->GetType() == SoundObject::SOUND_STREAMED )
+		{
+			delete m_Sounds[i]->sop_Object;
+		}
+	}
+
+	for ( std::list< SoundObjectPropertiesInternal >::iterator i = m_TempSounds.begin(); i != m_TempSounds.end(); i++ )
+	{
+		if ( (*i)->sop_Object->GetType() == SoundObject::SOUND_STREAMED )
+		{
+			delete (*i)->sop_Object;
+		}
+	}
+	
+	m_Groups.clear();
+	m_Sounds.clear();
+	m_TempSounds.clear();
+	
+	LeaveCriticalSection( &m_SoundRemoveCSec );
+	LeaveCriticalSection( &m_TempSoundListCSec );
+	LeaveCriticalSection( &m_SoundListCSec );
+}
+
 unsigned int SoundMixer::GetAmountOfSounds( void )
 {
 	return m_Sounds.size() + m_TempSounds.size();
@@ -262,6 +293,7 @@ SoundMixer* SoundMixer::GetMixer( void )
 void SoundMixer::DeinitializeMixer( void )
 {
 	delete m_Mixer;
+	m_Mixer = 0;
 }
 
 unsigned int g_ID = 0;

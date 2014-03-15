@@ -146,13 +146,13 @@ SoundObjectResults::SoundObjectResult StreamingSoundObjectOggImpl::AdvancePositi
 
 	bool remain = true;
 
-	if ( m_GlobalPosition >= (double) m_BufferSize )
+	while ( m_GlobalPosition >= (double) m_BufferSize && remain == true )
 	{
 		m_GlobalPosition -= (double) m_BufferSize;
 		remain = UpdateBuffer();
 	}
 
-	if ( m_Parent->GetPosition() >= (double) m_TotalSize )
+	while ( m_Parent->GetPosition() >= (double) m_TotalSize && remain == true )
 	{
 		m_Parent->SetPosition( m_Parent->GetPosition() - (double) m_TotalSize );
 

@@ -38,13 +38,31 @@ namespace Raptor
 		{
 			SoundMixer* sMix = (SoundMixer*) ptr; 
 
-			while ( WaitForSingleObject( sMix->m_MixerStopEvent, 4 ) != WAIT_OBJECT_0 )
+			float msMax = ( (float) sMix->m_RingPlaybackBuffer->GetBufferSize() / 
+							(float) sMix->GetWaveOut()->GetSampleRate() ) * 50.0f;
+
+			LARGE_INTEGER start;
+			LARGE_INTEGER end;
+
+			float deltaTime = 4.0f;
+			unsigned int msToSleep = 4;
+
+			while ( WaitForSingleObject( sMix->m_MixerStopEvent, msToSleep ) != WAIT_OBJECT_0 )
 			{
+				QueryPerformanceCounter( &start );
+
 				EnterCriticalSection( &sMix->m_SoundRemoveCSec );
 				EnterCriticalSection( &sMix->m_SoundListCSec );
 				sMix->MixSoundList();
 				LeaveCriticalSection( &sMix->m_SoundListCSec );
 				LeaveCriticalSection( &sMix->m_SoundRemoveCSec );
+
+				QueryPerformanceCounter( &end );
+
+				deltaTime = float( end.QuadPart - start.QuadPart ) / float( sMix->m_TickRate.QuadPart / 1000 );
+				msToSleep = 0;
+				
+				if ( deltaTime < msMax ) msToSleep = (unsigned int) ( msMax - deltaTime );
 			}
 
 			return 1;
@@ -54,8 +72,19 @@ namespace Raptor
 		{
 			SoundMixer* sMix = (SoundMixer*) ptr;
 
-			while ( WaitForSingleObject( sMix->m_MixerStopEvent, 2 ) != WAIT_OBJECT_0 )
+			float msMax = ( (float) sMix->m_BufferSize / 
+							(float) sMix->GetWaveOut()->GetSampleRate() ) * 50.0f;
+
+			LARGE_INTEGER start;
+			LARGE_INTEGER end;
+
+			float deltaTime = 2.0f;
+			unsigned int msToSleep = 2;
+
+			while ( WaitForSingleObject( sMix->m_MixerStopEvent, msToSleep ) != WAIT_OBJECT_0 )
 			{
+				QueryPerformanceCounter( &start );
+
 				EnterCriticalSection( &sMix->m_SoundRemoveCSec );
 				EnterCriticalSection( &sMix->m_SoundListCSec );
 				sMix->MixSoundList();
@@ -63,6 +92,13 @@ namespace Raptor
 				LeaveCriticalSection( &sMix->m_SoundRemoveCSec );
 
 				WaitForSingleObject( sMix->GetWaveOut()->m_WaveoutBufferSwapEvent, INFINITE );
+
+				QueryPerformanceCounter( &end );
+
+				deltaTime = float( end.QuadPart - start.QuadPart ) / float( sMix->m_TickRate.QuadPart / 1000 );
+				msToSleep = 0;
+				
+				if ( deltaTime < msMax ) msToSleep = (unsigned int) ( msMax - deltaTime );
 			}
 
 			return 1;
@@ -209,6 +245,7 @@ SoundMixer::SoundMixer( unsigned int sampleRate, unsigned int bufferSize, SoundM
 	m_Mixer = this;
 	m_AttenuationFactor = 1.0f;
 	m_Profile = profile;
+	m_BufferSize = bufferSize;
 
 	if ( bufferMode == SoundMixerBufferingModes::BUFFERING_RING )
 	{
@@ -227,6 +264,8 @@ SoundMixer::SoundMixer( unsigned int sampleRate, unsigned int bufferSize, SoundM
 	InitializeCriticalSection( &m_TempSoundListCSec );
 	InitializeCriticalSection( &m_SoundRemoveCSec );
 	InitializeCriticalSection( &m_CameraSettingsCSec );
+
+	QueryPerformanceFrequency( &m_TickRate );
 
 	m_MixerStopEvent = CreateEvent( 0, true, 0, 0 );
 	ResetEvent( m_MixerStopEvent );

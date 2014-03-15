@@ -98,8 +98,7 @@ short StreamingSoundObjectOggImpl::GetCurrentSample( unsigned int num )
 
 	short val1 = m_BufferChannels[num][ ( (int) position ) % m_BufferSize ];
 
-	int nextPos = (int) ( position + 1 );
-	if ( nextPos >= (int) m_BufferSize ) nextPos = (int) m_BufferSize - 1;
+	int nextPos = (int) ( position + 1 ) % m_BufferSize;
 
 	short val2 = m_BufferChannels[num][ nextPos ];
 
@@ -146,13 +145,13 @@ SoundObjectResults::SoundObjectResult StreamingSoundObjectOggImpl::AdvancePositi
 
 	bool remain = true;
 
-	while ( m_GlobalPosition >= (double) m_BufferSize && remain == true )
+	if ( m_GlobalPosition >= (double) m_BufferSize )
 	{
 		m_GlobalPosition -= (double) m_BufferSize;
 		remain = UpdateBuffer();
 	}
 
-	while ( m_Parent->GetPosition() >= (double) m_TotalSize && remain == true )
+	if ( m_Parent->GetPosition() >= (double) m_TotalSize )
 	{
 		m_Parent->SetPosition( m_Parent->GetPosition() - (double) m_TotalSize );
 

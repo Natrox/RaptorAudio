@@ -106,9 +106,6 @@ namespace Raptor
 			void MixSoundList( void );
 
 		private:
-			LARGE_INTEGER m_TickRate;
-
-		private:
 			HANDLE m_MixerThreadHandle;
 			HANDLE m_SoundAdditionThreadHandle;
 			HANDLE m_MixerStopEvent;
@@ -125,7 +122,7 @@ namespace Raptor
 
 		public:
 			BlockBuffer* m_BlockPlaybackBuffer;
-			unsigned int m_BufferSize;
+
 		private:
 			SoundMixerBufferingModes::SoundMixerBufferingMode m_BufferType;
 

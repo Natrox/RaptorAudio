@@ -35,6 +35,10 @@ Feature sheet:
 - Mixer profiles for both speakers and headphones setups.
 - Multiple types of output buffers (block buffer, ring buffer).
 
+Streaming or not?
+-------
+OGG is only support with StreamingSoundObject. StreamingSoundObject does not necessarily mean that the whole file is streamed from disk, it merely means that not all of the sound data will be available at all times. Note that it is possible to use StreamingSoundObject with pre-loaded memory. As such, **MemorySoundObject does not support OGG!**
+
 Usage
 =======
 Using the basic functionality of RaptorAudio is very simple. First, the libraries must be linked and the headers must be included. Then, the audio engine has to be initialized. 
@@ -47,3 +51,54 @@ using namespace Raptor::Audio;
 ...
 // Example
 SoundMixer::InitializeMixer( sampleRate, bufferSize, SoundMixerBufferingModes::BUFFERING_BLOCKS, SoundMixerProfiles::SOUND_MIXER_SPEAKERS );
+```
+
+From here on, the user may create sounds;
+
+```cpp
+// For streaming audio (from file).
+StreamingSoundObject* sound = new StreamingSoundObject( "Space Faring.ogg" );
+
+// For loaded audio (from file). MemorySoundObject does not support OGG!
+MemorySoundObject* sound = new StreamingSoundObject( "Space Faring.wav" );
+
+// For audio from memory.
+StreamingSoundObject* sound = new StreamingSoundObject( ptr, AudioOrigins::AUDIO_ORIGIN_OPENMEMORY, length );
+MemorySoundObject* sound = new MemorySoundObject( ptr, AudioOrigins::AUDIO_ORIGIN_OPENMEMORY_POINT, length );
+```
+
+If the user now wishes to just play the sound (fire and forget);
+
+```cpp
+SoundMixer::GetMixer()->PlaySoundObject( sound );
+```
+
+However, often at times, you may want to control the sound as it is playing;
+
+```cpp
+SoundObjectProperties props = SoundMixer::GetMixer()->CreateProperties( sound );
+
+// Set sound to loop
+props->SetLooping( true );
+
+SoundMixer::GetMixer()->PlaySoundObject( props );
+
+....
+
+// Somewhere else
+SoundMixer::GetMixer()->Stop( props );
+```
+
+Note that it is perfectly safe to use the 'props' object anywhere. It is garbage-collected, so it exists for as long as you keep it, and the sound mixer will safely ignore it if it is not relevant anymore.
+
+Shared properties
+-----------------
+RaptorAudio provides a 'SharedProperties' object. This object can be shared between sounds (or used individually), and contains variables that govern the pitch, volume and DSP chain of sounds;
+
+```cpp
+SharedProperties sprops = CreateSharedProperties();
+sprops->sp_Volume = 0.5;
+
+// Link to a SoundObjectProperties
+SoundObjectProperties props = SoundMixer::GetMixer()->CreateProperties( sound, sprops );
+```

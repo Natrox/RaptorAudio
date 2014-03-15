@@ -240,8 +240,10 @@ props->SetHistoryBufferObject( histObj );
 
 All sounds connected to this history buffer will produce an echo.
 
-Safety of SoundObjectProperties and SharedProperties
+Safety
 -----
+
+Of SoundObjectProperties and SharedProperties;
 
 These two classes are garbage-collected, because in the past, they could be used after expiration (because the sound stopped playing or else). It was really hard to actually figure out if the objects were safe to use, so I decided to use thread-safe shared pointers to manage the lifetime. Now, using these classes is safe, even if the sound has stopped playing and doesn't exist anymore in the mixer.
 

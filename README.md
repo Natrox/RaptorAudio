@@ -189,13 +189,18 @@ Preloaded DSP effects can be found in 'DSPFunctions.h'.
 Every sound can be played back in 3D;
 
 ```cpp
-Sound3DDescription* desc3d = CreateSound3DDescription();
+Sound3DDescription desc3d = CreateSound3DDescription();
 
 desc3d->s3d_AttenuationMax = 300; // Set max attenuation (sound has 0.0 volume at x units)
 desc3d->s3d_AttenuationMin = 15; // Set max attenuation (sound has 1.0 volume at x units)
 desc3d->s3d_StereoInnerDistance = 5; // Sound is fully stereo from this point
 desc3d->s3d_StereoOuterDistance = 20; // Sound is fully mono from this point
 desc3d->s3d_Position = glm::vec3( 1, 5, 16 ); // Set a position in 3D space. May be changed whenever!
+
+...
+
+SoundObjectProperties props = SoundMixer::GetMixer()->CreateProperties( sound, sprops );
+props->Set3DInformation( desc3d );
 ```
 
 The stereo distances are used to interpolate between a mono and stereo version of a sound, which is useful for soundscapes. The position can be changed at any point in time.
@@ -245,9 +250,9 @@ All sounds connected to this history buffer will produce an echo.
 Safety
 -----
 
-Of SoundObjectProperties and SharedProperties;
+Of SoundObjectProperties, SharedProperties and Sound3DDescription;
 
-These two classes are garbage-collected, because in the past, they could be used after expiration (because the sound stopped playing or else). It was really hard to actually figure out if the objects were safe to use, so I decided to use thread-safe shared pointers to manage the lifetime. Now, using these classes is safe, even if the sound has stopped playing and doesn't exist in the mixer.
+These classes are garbage-collected, because in the past, they could be used after expiration (because the sound stopped playing or else). It was really hard to actually figure out if the objects were safe to use, so I decided to use thread-safe shared pointers to manage the lifetime. Now, using these classes is safe, even if the sound has stopped playing and doesn't exist in the mixer.
 
 Future
 ------

@@ -60,7 +60,7 @@ Using the basic functionality of RaptorAudio is very simple. First, the librarie
 using namespace Raptor::Audio;
 
 ...
-// Example
+// Example (buffersize could be sampleRate / 10)
 SoundMixer::InitializeMixer( sampleRate, bufferSize, SoundMixerBufferingModes::BUFFERING_BLOCKS, SoundMixerProfiles::SOUND_MIXER_SPEAKERS );
 ```
 

@@ -39,5 +39,10 @@ namespace Raptor
 		{
 			return new _SharedProperties();
 		}
+
+		static _SoundObjectProperties* CreateSoundObjectProperties( void )
+		{
+			return new _SoundObjectProperties();
+		}
 	};
 };

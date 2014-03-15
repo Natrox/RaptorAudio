@@ -38,7 +38,7 @@ namespace Raptor
 		{
 			SoundMixer* sMix = (SoundMixer*) ptr; 
 
-			while ( WaitForSingleObject( sMix->m_MixerStopEvent, 5 ) != WAIT_OBJECT_0 )
+			while ( WaitForSingleObject( sMix->m_MixerStopEvent, 4 ) != WAIT_OBJECT_0 )
 			{
 				EnterCriticalSection( &sMix->m_SoundRemoveCSec );
 				EnterCriticalSection( &sMix->m_SoundListCSec );
@@ -54,7 +54,7 @@ namespace Raptor
 		{
 			SoundMixer* sMix = (SoundMixer*) ptr;
 
-			while ( WaitForSingleObject( sMix->m_MixerStopEvent, 3 ) != WAIT_OBJECT_0 )
+			while ( WaitForSingleObject( sMix->m_MixerStopEvent, 2 ) != WAIT_OBJECT_0 )
 			{
 				EnterCriticalSection( &sMix->m_SoundRemoveCSec );
 				EnterCriticalSection( &sMix->m_SoundListCSec );

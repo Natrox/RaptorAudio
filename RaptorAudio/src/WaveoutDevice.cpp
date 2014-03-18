@@ -128,6 +128,7 @@ m_CurrentBlock( 0 )
 	g_Waveout = this;
 
 	m_WaveoutReadyEvent = CreateEvent( 0, true, 0, 0 );
+	m_WaveoutBufferSwapEvent = CreateEvent( 0, false, 0, 0 );
 
 	m_BlockBuffer[0] = new BlockBuffer( sampleAmount );
 	m_BlockBuffer[1] = new BlockBuffer( sampleAmount );

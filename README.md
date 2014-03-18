@@ -103,7 +103,7 @@ SoundMixer::GetMixer()->PlaySoundObject( props );
 SoundMixer::GetMixer()->Stop( props );
 ```
 
-Note that it is perfectly safe to use the 'props' object anywhere. It is garbage-collected, so it exists for as long as you keep it, and the sound mixer will safely ignore it if it is not relevant anymore.
+Note that it is perfectly safe to use the 'props' object anywhere. It is garbage-collected, so it exists for as long as you keep it, and the sound mixer will safely ignore it if it is not relevant anymore. However, it is not possible to re-use this object to play the sound again!
 
 Sound loading
 -------------

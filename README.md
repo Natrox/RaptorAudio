@@ -115,7 +115,7 @@ AUDIO_ORIGIN_FILE | Load sound from file.
 AUDIO_ORIGIN_OPENMEMORY | Copy memory, and load sound from copied memory.
 AUDIO_ORIGIN_OPENMEMORY_POINT | Load sound directly from memory. Memory should not be freed before the sound is stopped.
 
-It is possible to stream a WAV file from memory, however impractical that may be. It is recommended that you load from memory whenever you can (even better using AUDIO_ORIGIN_OPENMEMORY_POINT), to avoid using I/O too much. Note that, if you stream from memory and use AUDIO_ORIGIN_OPENMEMORY, the data will be copied for each instance of the sound.
+It is possible to stream a WAV file from memory, however impractical that may be. It is recommended that you load from memory whenever you can (even better; using AUDIO_ORIGIN_OPENMEMORY_POINT), to avoid using I/O too much. Note that, if you stream from memory and use AUDIO_ORIGIN_OPENMEMORY, the data will be copied for each instance of the sound.
 
 Shared properties
 -----------------

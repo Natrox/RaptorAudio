@@ -32,7 +32,7 @@ RaptorAudio has basic mono or stereo sound playback, in both 2D and 3D. Sounds c
 
 Included as well is a DSP system; this system allows practically any operation on the playing sound data. DSP effects such as a simple LowPass/HighPass, Stereo Enhancer and Echo Enhancer are included, but users may create their own effects.
 
-Mixing in RaptorAudio is done using a form of brick-wall compression. There are two possible outputs for the mixer. One is a block-buffering system, which is the canonical way to send data to the audio device. Additionally, there is also support for a ringbuffer, which has a bit more latency, but is a lot more stable on slow devices.
+Mixing in RaptorAudio is done using a form of brick-wall compression. There are two possible outputs for the mixer. One is a block-buffering system, which is the canonical way to send data to the audio device.
 
 Feature sheet:
 - Support for WAV (8bu/16bs/24bs/32bf) and OGG.
@@ -41,8 +41,7 @@ Feature sheet:
 - 3D sound and stereo sound in 3D (using a mono to stereo interpolation).
 - Full DSP chaining pipeline with user customizable variables.
 - Recyclable and shareable properties for 3D and DSP.
-- Mixer profiles for both speakers and headphones setups.
-- Multiple types of output buffers (block buffer, ring buffer).
+- Mixer profiles for both speakers and headphones setups.=
 
 Streaming or not?
 -------
@@ -64,7 +63,7 @@ using namespace Raptor::Audio;
 
 ...
 // Example (buffersize could be sampleRate / 10)
-SoundMixer::InitializeMixer( sampleRate, bufferSize, SoundMixerBufferingModes::BUFFERING_BLOCKS, SoundMixerProfiles::SOUND_MIXER_SPEAKERS );
+SoundMixer::InitializeMixer( sampleRate, bufferSize, SoundMixerProfiles::SOUND_MIXER_SPEAKERS );
 ```
 
 From here on, the user may create sounds;

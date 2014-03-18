@@ -208,6 +208,7 @@ SoundMixer::SoundMixer( unsigned int sampleRate, unsigned int bufferSize, SoundM
 {
 	m_Mixer = this;
 	m_AttenuationFactor = 1.0f;
+	m_Compression = 1.0f;
 	m_Profile = profile;
 
 	if ( bufferMode == SoundMixerBufferingModes::BUFFERING_RING )
@@ -382,19 +383,17 @@ WaveoutDevice* SoundMixer::GetWaveOut( void )
 	return m_WaveOutDevice;
 }
 
-double compression = 1.0;
-
-void Compress( int a, double minimal )
+void SoundMixer::Compress( int sample, double minimal )
 {
-	if ( a > SHRT_MAX || a < SHRT_MIN )
+	if ( sample > SHRT_MAX || sample < SHRT_MIN )
 	{
-		if ( compression > minimal ) compression -= 0.01;
+		if ( m_Compression > minimal ) m_Compression -= 0.01;
 	}
 
-	else if ( compression < 1.0 )
+	else if ( m_Compression < 1.0 )
 	{
-		compression += minimal * 0.0001;
-		compression = min( 1.0, compression );
+		m_Compression += minimal * 0.0001;
+		m_Compression = min( 1.0, m_Compression );
 	}
 }
 
@@ -555,8 +554,8 @@ void SoundMixer::MixSoundList( void )
 			m_Groups[i]->AdvancePosition();
 		}
 
-		amplL = (int) ( compression * (double) amplL );
-		amplR = (int) ( compression * (double) amplR );
+		amplL = (int) ( m_Compression * (double) amplL );
+		amplR = (int) ( m_Compression * (double) amplR );
 
 		Compress( amplL, 1.0 / (double) ( soundSize + 4.0 ) );
 		Compress( amplR, 1.0 / (double) ( soundSize + 4.0 ) );

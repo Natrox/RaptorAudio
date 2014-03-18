@@ -89,11 +89,12 @@ namespace Raptor
 
 		public:
 			void PlaySoundObject( SoundObject* soundToPlay, SharedProperties constProp = SharedProperties() );
-			void PlaySoundObject( SoundObjectProperties& soundToPlay );
-
-			void SetBlockBuffer( BlockBuffer* blockBuffer );
-
+			void PlaySoundObject( SoundObjectProperties& soundToPlay );	
 			SoundObjectProperties CreateProperties( SoundObject* soundToUse, SharedProperties constProp = SharedProperties() );
+
+		private:
+			void SetBlockBuffer( BlockBuffer* blockBuffer );
+			void Compress( int sample, double minimal );
 
 		public:
 			WaveoutDevice* GetWaveOut( void );
@@ -137,6 +138,7 @@ namespace Raptor
 			vec3 m_Position;
 
 			float m_AttenuationFactor;
+			double m_Compression;
 
 		private:
 			static SoundMixer* m_Mixer;

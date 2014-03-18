@@ -34,22 +34,6 @@ namespace Raptor
 {
 	namespace Audio
 	{
-		DWORD WINAPI RingBufferMixerThreadEntry( void* ptr )
-		{
-			SoundMixer* sMix = (SoundMixer*) ptr; 
-
-			while ( WaitForSingleObject( sMix->m_MixerStopEvent, 1 ) != WAIT_OBJECT_0 )
-			{
-				EnterCriticalSection( &sMix->m_SoundRemoveCSec );
-				EnterCriticalSection( &sMix->m_SoundListCSec );
-				sMix->MixSoundList();
-				LeaveCriticalSection( &sMix->m_SoundListCSec );
-				LeaveCriticalSection( &sMix->m_SoundRemoveCSec );
-			}
-
-			return 1;
-		}
-
 		DWORD WINAPI BlockBufferMixerThreadEntry( void* ptr )
 		{
 			SoundMixer* sMix = (SoundMixer*) ptr;
@@ -204,25 +188,15 @@ void SoundMixer::AddGroup( HistoryBufferObject* historyObject )
 	LeaveCriticalSection( &m_SoundListCSec );
 }
 
-SoundMixer::SoundMixer( unsigned int sampleRate, unsigned int bufferSize, SoundMixerBufferingModes::SoundMixerBufferingMode bufferMode, SoundMixerProfiles::SoundMixerProfile profile )
+SoundMixer::SoundMixer( unsigned int sampleRate, unsigned int bufferSize, SoundMixerProfiles::SoundMixerProfile profile )
 {
 	m_Mixer = this;
 	m_AttenuationFactor = 1.0f;
 	m_Compression = 1.0f;
 	m_Profile = profile;
 
-	if ( bufferMode == SoundMixerBufferingModes::BUFFERING_RING )
-	{
-		m_RingPlaybackBuffer = new RingBuffer( bufferSize );
-		m_WaveOutDevice = new WaveoutDevice( sampleRate, m_RingPlaybackBuffer );
-	}
-
-	else if ( bufferMode == SoundMixerBufferingModes::BUFFERING_BLOCKS )
-	{
-		m_RingPlaybackBuffer = 0;
-		m_WaveOutDevice = new WaveoutDevice( sampleRate, bufferSize );
-		WaitForSingleObject( m_WaveOutDevice->m_WaveoutReadyEvent, INFINITE );
-	}
+	m_WaveOutDevice = new WaveoutDevice( sampleRate, bufferSize );
+	WaitForSingleObject( m_WaveOutDevice->m_WaveoutReadyEvent, INFINITE );
 
 	InitializeCriticalSection( &m_SoundListCSec );
 	InitializeCriticalSection( &m_TempSoundListCSec );
@@ -233,18 +207,7 @@ SoundMixer::SoundMixer( unsigned int sampleRate, unsigned int bufferSize, SoundM
 	ResetEvent( m_MixerStopEvent );
 
 	m_SoundAdditionSemaphore = CreateSemaphore( 0, 0, 2048, 0 );
-
-	m_BufferType = bufferMode;
-
-	if ( bufferMode == SoundMixerBufferingModes::BUFFERING_RING )
-	{
-		m_MixerThreadHandle = CreateThread( 0, 0, RingBufferMixerThreadEntry, this, 0, 0 );
-	}
-
-	else if ( bufferMode == SoundMixerBufferingModes::BUFFERING_BLOCKS )
-	{
-		m_MixerThreadHandle = CreateThread( 0, 0, BlockBufferMixerThreadEntry, this, 0, 0 );
-	}
+	m_MixerThreadHandle = CreateThread( 0, 0, BlockBufferMixerThreadEntry, this, 0, 0 );
 
 	m_SoundAdditionThreadHandle = CreateThread( 0, 0, SoundAdditionThreadEntry, this, 0, 0 );
 }
@@ -285,11 +248,11 @@ SoundMixer::~SoundMixer( void )
 	}
 }
 
-void SoundMixer::InitializeMixer( unsigned int sampleRate, unsigned int bufferSize, SoundMixerBufferingModes::SoundMixerBufferingMode bufferMode, SoundMixerProfiles::SoundMixerProfile profile )
+void SoundMixer::InitializeMixer( unsigned int sampleRate, unsigned int bufferSize, SoundMixerProfiles::SoundMixerProfile profile )
 {
 	if ( m_Mixer == 0 )
 	{
-		m_Mixer = new SoundMixer( sampleRate, bufferSize, bufferMode, profile );
+		m_Mixer = new SoundMixer( sampleRate, bufferSize, profile );
 	}
 }
 
@@ -399,16 +362,12 @@ void SoundMixer::Compress( int sample, double minimal )
 
 void SoundMixer::MixSoundList( void )
 {
-	m_WaveOutDevice->UpdateBufferPosition();
-
 	int amplL = 0;
 	int amplR = 0;
 
 	int count = 0;
 
-	static int maxCount = SHRT_MAX;
-	if ( m_RingPlaybackBuffer != 0 ) maxCount = m_RingPlaybackBuffer->GetBufferSize() / 12;
-
+	int maxCount = (int) m_BlockPlaybackBuffer->GetNumSamples() / 2;
 	size_t soundSize = m_Sounds.size();
 
 	EnterCriticalSection( &m_CameraSettingsCSec );
@@ -466,22 +425,9 @@ void SoundMixer::MixSoundList( void )
 
 	while ( count < maxCount )
 	{
-		if ( m_BufferType == SoundMixerBufferingModes::BUFFERING_RING )
+		if ( m_BlockPlaybackBuffer->CheckStatus() == false )
 		{
-			if ( m_RingPlaybackBuffer->CheckStatus() == BufferResults::BUFFER_FULL )
-			{
-				break;
-			}
-		}
-
-		else if ( m_BufferType == SoundMixerBufferingModes::BUFFERING_BLOCKS )
-		{
-			// QQQ: Change the return type of this to be compliant with other buffers
-
-			if ( m_BlockPlaybackBuffer->CheckStatus() == false )
-			{
-				break;
-			}
+			break;
 		}
 
 		for ( unsigned int i = 0; i < m_Sounds.size(); i++ )
@@ -566,17 +512,9 @@ void SoundMixer::MixSoundList( void )
 		if ( amplR > SHRT_MAX ) amplR = SHRT_MAX;
 		if ( amplR < SHRT_MIN ) amplR = SHRT_MIN;
 
-		if ( m_BufferType == SoundMixerBufferingModes::BUFFERING_RING )
-		{
-			m_RingPlaybackBuffer->WriteBuffer2( amplL, amplR );
-		}
+		m_BlockPlaybackBuffer->WriteBuffer2( amplL, amplR );
 
-		else if ( m_BufferType == SoundMixerBufferingModes::BUFFERING_BLOCKS )
-		{
-			m_BlockPlaybackBuffer->WriteBuffer2( amplL, amplR );
-		}
-
-		if ( m_BufferType == SoundMixerBufferingModes::BUFFERING_RING ) count++;
+		count++;
 
 		for ( int i = 0; i < (int) m_Sounds.size(); i++ )
 		{

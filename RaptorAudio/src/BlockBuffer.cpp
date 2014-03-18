@@ -72,3 +72,8 @@ bool BlockBuffer::CheckStatus( void )
 
 	return true;
 }
+
+unsigned int BlockBuffer::GetNumSamples( void )
+{
+	return m_NumSamples;
+}

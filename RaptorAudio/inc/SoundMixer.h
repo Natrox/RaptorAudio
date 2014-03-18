@@ -38,15 +38,6 @@ namespace Raptor
 {
 	namespace Audio
 	{
-		namespace SoundMixerBufferingModes
-		{
-			enum SoundMixerBufferingMode
-			{
-				BUFFERING_RING,
-				BUFFERING_BLOCKS
-			};
-		};
-
 		namespace SoundMixerProfiles
 		{
 			enum SoundMixerProfile
@@ -59,13 +50,13 @@ namespace Raptor
 		class SoundMixer
 		{
 		public:
-			SoundMixer( unsigned int sampleRate, unsigned int bufferSize, SoundMixerBufferingModes::SoundMixerBufferingMode bufferMode, SoundMixerProfiles::SoundMixerProfile profile = SoundMixerProfiles::SOUND_MIXER_SPEAKERS );
+			SoundMixer( unsigned int sampleRate, unsigned int bufferSize, SoundMixerProfiles::SoundMixerProfile profile = SoundMixerProfiles::SOUND_MIXER_SPEAKERS );
 
 		private:
 			~SoundMixer( void );
 
 		public:
-			static void InitializeMixer( unsigned int sampleRate, unsigned int bufferSize, SoundMixerBufferingModes::SoundMixerBufferingMode bufferMode, SoundMixerProfiles::SoundMixerProfile profile = SoundMixerProfiles::SOUND_MIXER_SPEAKERS );
+			static void InitializeMixer( unsigned int sampleRate, unsigned int bufferSize, SoundMixerProfiles::SoundMixerProfile profile = SoundMixerProfiles::SOUND_MIXER_SPEAKERS );
 			static SoundMixer* GetMixer( void );
 			static void DeinitializeMixer( void );
 
@@ -112,21 +103,17 @@ namespace Raptor
 			HANDLE m_MixerStopEvent;
 			HANDLE m_SoundAdditionSemaphore;
 
-			friend DWORD WINAPI RingBufferMixerThreadEntry( void* ptr );
 			friend DWORD WINAPI BlockBufferMixerThreadEntry( void* ptr );
 			friend DWORD WINAPI SoundAdditionThreadEntry( void* ptr );
 
 		private:
 			WaveoutDevice* m_WaveOutDevice;
-			RingBuffer* m_RingPlaybackBuffer;
 			SoundMixerProfiles::SoundMixerProfile m_Profile;
 
 		public:
 			BlockBuffer* m_BlockPlaybackBuffer;
 
 		private:
-			SoundMixerBufferingModes::SoundMixerBufferingMode m_BufferType;
-
 			std::vector< HistoryBufferObject* > m_Groups;
 			std::vector< SoundObjectPropertiesInternal > m_Sounds;
 			std::list< SoundObjectPropertiesInternal > m_TempSounds;

@@ -35,13 +35,11 @@ namespace Raptor
 		class WaveoutDevice
 		{
 		public:
-			WaveoutDevice( unsigned int sampleRate, RingBuffer* ringBuffer );
 			WaveoutDevice( unsigned int sampleRate, unsigned int sampleAmount );
 			~WaveoutDevice( void );
 
 		public:
 			unsigned int GetSampleRate( void );
-			void UpdateBufferPosition( void );
 			void StopDevice( void );
 
 		public:
@@ -55,21 +53,15 @@ namespace Raptor
 			HANDLE m_WaveoutThreadHandle;
 			HANDLE m_WaveoutStopEvent;
 			HANDLE m_WaveoutWriteStopEvent;
-
-			MMTIME m_PositionBuffer;
 			HWAVEOUT m_Waveout;
 
-			RingBuffer* m_RingBuffer;
 			BlockBuffer* m_BlockBuffer[2];
-
 			WAVEHDR m_BlockBufferHeader[2];
 			unsigned int m_CurrentBlock;
 
 			unsigned int m_SampleRate;
-			unsigned int m_RawPosition;
 
 			friend void CALLBACK WaveoutCallback( HWAVEOUT hWaveOut, UINT uMsg, DWORD dwInstance, DWORD dwParam1, DWORD dwParam2 );
-			friend DWORD WINAPI WaveoutRingBufferThreadFunction( WaveoutDevice* wvOut );
 			friend DWORD WINAPI WaveoutBlockBufferThreadFunction( WaveoutDevice* wvOut );
 		};
 	};

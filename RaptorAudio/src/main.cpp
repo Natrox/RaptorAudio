@@ -17,7 +17,7 @@ using namespace Raptor::Utility;
 
 int main( void )
 {
-	SoundMixer::InitializeMixer( RATE, 4410, SoundMixerBufferingModes::BUFFERING_BLOCKS, SoundMixerProfiles::SOUND_MIXER_SPEAKERS );
+	SoundMixer::InitializeMixer( RATE, 4410, SoundMixerProfiles::SOUND_MIXER_SPEAKERS );
 
 	StreamingSoundObject* song = new StreamingSoundObject( "Space Faring.ogg" );
 	SharedProperties sprop = CreateSharedProperties();

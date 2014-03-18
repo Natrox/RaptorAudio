@@ -37,6 +37,7 @@ namespace Raptor
 		public:
 			void ResetParameters( void ) { m_BufferPosition = 0; }
 			bool WriteBuffer2( short lVal, short rVal );
+			unsigned int GetNumSamples( void );
 
 			bool CheckStatus( void );
 			short* GetDataPtr( void );

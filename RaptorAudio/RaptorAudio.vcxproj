@@ -493,6 +493,7 @@
     <ClInclude Include="inc\AudioSource.h" />
     <ClInclude Include="inc\AudioSourceFile.h" />
     <ClInclude Include="inc\AudioSourceMemory.h" />
+    <ClInclude Include="inc\OggDecoder.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="./src/DSPChain.cpp" />
@@ -519,6 +520,7 @@
     <ClCompile Include="src\AudioSource.cpp" />
     <ClCompile Include="src\AudioSourceFile.cpp" />
     <ClCompile Include="src\AudioSourceMemory.cpp" />
+    <ClCompile Include="src\OggDecoder.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

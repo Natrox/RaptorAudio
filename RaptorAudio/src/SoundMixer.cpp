@@ -24,6 +24,7 @@
 #include "DSPChain.h"
 
 #include <Windows.h>
+#include "OggDecoder.h"
 
 using namespace Raptor;
 using namespace Raptor::Audio;
@@ -263,6 +264,8 @@ SoundMixer* SoundMixer::GetMixer( void )
 
 void SoundMixer::DeinitializeMixer( void )
 {
+	OggDecoder::DeleteSingleton();
+
 	delete m_Mixer;
 	m_Mixer = 0;
 }

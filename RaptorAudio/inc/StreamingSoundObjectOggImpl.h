@@ -36,6 +36,27 @@ namespace Raptor
 	{
 		class StreamingSoundObject;
 
+		struct OggBuffer
+		{
+			OggBuffer( void )
+			{
+				ob_BufferPtrs[0] = 0;
+				ob_BufferPtrs[1] = 0;
+			}
+
+			~OggBuffer( void )
+			{
+				delete [] ob_BufferPtrs[0];
+				delete [] ob_BufferPtrs[1];
+
+				ob_BufferPtrs[0] = 0;
+				ob_BufferPtrs[1] = 0;
+			}
+
+			short* ob_BufferPtrs[2];
+			unsigned int ob_BufferSize;
+		};
+
 		class StreamingSoundObjectOggImpl : protected StreamingSoundObjectImpl
 		{
 		protected:
@@ -51,11 +72,14 @@ namespace Raptor
 			bool UpdateBuffer( void );
 
 		protected:
-			short** m_BufferChannels;
-			short* m_BufferChannelsInterleaved;
+			OggBuffer m_OggBuffers[2];
+
 			unsigned int m_BufferSize;
 			unsigned int m_TotalSize;
+			unsigned int m_CurrentBuffer;
+			unsigned int m_BufferCountdown;
 
+			bool m_LoopDone;
 			stb_vorbis* m_OggHandle;
 		};
 	};

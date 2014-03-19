@@ -28,6 +28,7 @@
 #include <iomanip> 
 #include <string>
 #include <sstream>
+#include "OggDecoder.h"
 
 using namespace Raptor;
 using namespace Raptor::Audio;
@@ -37,6 +38,8 @@ StreamingSoundObjectOggImpl::StreamingSoundObjectOggImpl( StreamingSoundObject* 
 StreamingSoundObjectImpl( 0 ) 
 {
 	m_GlobalPosition = 0;
+	m_CurrentBuffer = 0;
+	m_LoopDone = false;
 
 	int error = 0;
 
@@ -58,33 +61,43 @@ StreamingSoundObjectImpl( 0 )
 
 	WaveoutDevice* wvOut = SoundMixer::GetMixer()->GetWaveOut();
 
-	if ( m_BufferSize > wvOut->GetSampleRate() * 5 ) m_BufferSize = wvOut->GetSampleRate() * 5;
+	if ( m_BufferSize > wvOut->GetSampleRate() * 10 ) m_BufferSize = wvOut->GetSampleRate() * 10;
 	if ( m_NumChannels > 2 ) m_NumChannels = 2;
 
-	m_BufferChannels = (short**) malloc( sizeof( short* ) * m_NumChannels );
-	m_BufferChannelsInterleaved = (short*) malloc( sizeof( short ) * m_BufferSize * m_NumChannels );
+	m_BufferSize /= 2;
 
 	for ( unsigned int i = 0; i < m_NumChannels; i++ )
 	{
-		m_BufferChannels[i] = (short*) malloc( sizeof( short ) * m_BufferSize );
+		m_OggBuffers[0].ob_BufferPtrs[i] = new short[ m_BufferSize + 2 ];
+		m_OggBuffers[1].ob_BufferPtrs[i] = new short[ m_BufferSize + 2 ];
 	}
+
+	m_OggBuffers[0].ob_BufferSize = m_BufferSize;
+	m_OggBuffers[1].ob_BufferSize = m_BufferSize;
 
 	m_Parent = parent;
 
 	parent->SetAdvanceAmount( (double) stb_vorbis_get_info( m_OggHandle ).sample_rate / (double) wvOut->GetSampleRate() ); 
 	parent->SetBufferSize( m_BufferSize );
 
-	UpdateBuffer();
+	for ( unsigned int i = 0; i < 2; i++ )
+	{
+		OggDecoderRequest request;
+
+		request.odr_BufferSize = m_BufferSize + 1;
+		request.odr_DstBuffer1 = m_OggBuffers[i].ob_BufferPtrs[0];
+		request.odr_DstBuffer2 = m_OggBuffers[i].ob_BufferPtrs[1];
+
+		request.odr_Vorbis = m_OggHandle;
+		request.odr_LoopDone = &m_LoopDone;
+
+		OggDecoder::GetSingleton()->DecodeOggNow( request );
+	}
 }
 
 StreamingSoundObjectOggImpl::~StreamingSoundObjectOggImpl( void )
 {
 	stb_vorbis_close( m_OggHandle );
-
-	free( m_BufferChannelsInterleaved );
-
-	for ( unsigned int b = 0; b < m_NumChannels; b++ )
-		free( m_BufferChannels[b] );
 }
 
 short StreamingSoundObjectOggImpl::GetCurrentSample( unsigned int num )
@@ -96,11 +109,12 @@ short StreamingSoundObjectOggImpl::GetCurrentSample( unsigned int num )
 
 	double frac = position - (double) ( (int) position );
 
-	short val1 = m_BufferChannels[num][ ( (int) position ) % m_BufferSize ];
+	short val1 = m_OggBuffers[m_CurrentBuffer].ob_BufferPtrs[num][ ( (int) position ) % m_BufferSize ];
 
-	int nextPos = (int) ( position + 1 ) % m_BufferSize;
+	int nextPos = (int) ( position + 1 );
+	if ( nextPos >= (int) m_BufferSize ) return val1;
 
-	short val2 = m_BufferChannels[num][ nextPos ];
+	short val2 = m_OggBuffers[m_CurrentBuffer].ob_BufferPtrs[num][ nextPos ];
 
 	return (short) ( ( ( ( 1.0 - frac ) * val1 ) + (short) ( frac * val2 )  ) * m_Parent->GetVolume() );
 }
@@ -109,31 +123,32 @@ const short* StreamingSoundObjectOggImpl::GetChannelPtr( unsigned int num )
 {
 	if ( num >= m_NumChannels ) num = m_NumChannels - 1;
 
-	return m_BufferChannels[num];
+	return m_OggBuffers[m_CurrentBuffer].ob_BufferPtrs[num];
 }
 
 bool StreamingSoundObjectOggImpl::UpdateBuffer( void )
 {
-	int samplesGotten = stb_vorbis_get_samples_short_interleaved( m_OggHandle, m_NumChannels, m_BufferChannelsInterleaved, m_BufferSize * m_NumChannels ); 
-
-	if ( samplesGotten != m_BufferSize && m_BufferSize && !m_Parent->GetLooping() )
+	if ( m_LoopDone == true && m_Parent->GetLooping() )
 	{
-		return false;
+		m_LoopDone = false;
 	}
 
-	if ( samplesGotten != m_BufferSize && m_Parent->GetLooping() )
+	if ( m_LoopDone == false )
 	{
-		int remainder = ( m_BufferSize * m_NumChannels - samplesGotten * m_NumChannels );
+		OggDecoderRequest request;
 
-		stb_vorbis_seek_start( m_OggHandle );
-		stb_vorbis_get_samples_short_interleaved( m_OggHandle, m_NumChannels, m_BufferChannelsInterleaved + samplesGotten * m_NumChannels, remainder ); 
+		request.odr_BufferSize = m_BufferSize + 1;
+		request.odr_DstBuffer1 = m_OggBuffers[m_CurrentBuffer].ob_BufferPtrs[0];
+		request.odr_DstBuffer2 = m_OggBuffers[m_CurrentBuffer].ob_BufferPtrs[1];
+
+		request.odr_Vorbis = m_OggHandle;
+		request.odr_LoopDone = &m_LoopDone;
+
+		OggDecoder::GetSingleton()->DecodeOgg( request );
 	}
 
-	for ( unsigned int i = 0; i < m_BufferSize; i++ )
-	{
-		m_BufferChannels[0][i] = m_BufferChannelsInterleaved[i*m_NumChannels+0];
-		if ( m_NumChannels > 1 ) m_BufferChannels[1][i] = m_BufferChannelsInterleaved[i*m_NumChannels+1];
-	}
+	m_CurrentBuffer += 1;
+	m_CurrentBuffer &= 1;
 
 	return true;
 }
@@ -148,14 +163,19 @@ SoundObjectResults::SoundObjectResult StreamingSoundObjectOggImpl::AdvancePositi
 	if ( m_GlobalPosition >= (double) m_BufferSize )
 	{
 		m_GlobalPosition -= (double) m_BufferSize;
-		remain = UpdateBuffer();
+		UpdateBuffer();
 	}
 
 	if ( m_Parent->GetPosition() >= (double) m_TotalSize )
 	{
 		m_Parent->SetPosition( m_Parent->GetPosition() - (double) m_TotalSize );
 
-		if ( m_Parent->m_Properties->sop_Shared != 0 )
+		if ( !m_Parent->GetLooping() )
+		{
+			remain = false;
+		}
+
+		if ( remain && m_Parent->m_Properties->sop_Shared != 0 && m_Parent->GetLooping() )
 		{
 			if ( m_Parent->m_Properties->sop_Shared->sp_DSPChain != 0 )
 			{

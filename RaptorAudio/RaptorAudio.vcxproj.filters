@@ -123,6 +123,9 @@
     <ClInclude Include="inc\AudioSourceMemory.h">
       <Filter>Header Files\File</Filter>
     </ClInclude>
+    <ClInclude Include="inc\OggDecoder.h">
+      <Filter>Header Files\OGG</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="./src/WaveoutDevice.cpp">
@@ -181,6 +184,9 @@
     </ClCompile>
     <ClCompile Include="src\AudioSourceMemory.cpp">
       <Filter>Source Files\File</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OggDecoder.cpp">
+      <Filter>Source Files\OGG</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

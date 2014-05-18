@@ -41,7 +41,7 @@ Feature sheet:
 - 3D sound and stereo sound in 3D (using a mono to stereo interpolation).
 - Full DSP chaining pipeline with user customizable variables.
 - Recyclable and shareable properties for 3D and DSP.
-- Mixer profiles for both speakers and headphones setups.=
+- Mixer profiles for both speakers and headphones setups.
 
 Streaming or not?
 -------

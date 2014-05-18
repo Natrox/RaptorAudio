@@ -73,7 +73,7 @@ From here on, the user may create sounds;
 StreamingSoundObject* sound = new StreamingSoundObject( "Space Faring.ogg" );
 
 // For loaded audio (from file). MemorySoundObject does not support OGG!
-MemorySoundObject* sound = new StreamingSoundObject( "Space Faring.wav" );
+MemorySoundObject* sound = new MemorySoundObject( "Space Faring.wav" );
 
 // For audio from memory.
 StreamingSoundObject* sound = new StreamingSoundObject( ptr, AudioOrigins::AUDIO_ORIGIN_OPENMEMORY, length );
